@@ -19,11 +19,11 @@ public class CustomerService {
     private final CustomerRepository repository;
     private final AddressService addressService;
 
-    public Optional<Customer> findById(UUID id) {
-        return repository.findById(id);
+    public Optional<Customer> getCustomerById(UUID customerId) {
+        return repository.findById(customerId);
     }
 
-    public List<Customer> findCustomers() {
+    public List<Customer> getCustomers() {
         return repository.findAll();
     }
 
@@ -35,8 +35,8 @@ public class CustomerService {
         return repository.save(customer);
     }
 
-    public void updateCustomer(UUID id, Customer customer) {
-        Customer existingCustomer = repository.findById(id)
+    public void updateCustomer(UUID customerId, Customer customer) {
+        Customer existingCustomer = repository.findById(customerId)
                 .orElseThrow(CustomerNotFoundException::new);
 
         // Update Customer
@@ -59,10 +59,10 @@ public class CustomerService {
         addressService.updateAddress(existingCustomer.getAddress().getId(), existingCustomer.getAddress());
     }
 
-    public void deleteCustomer(UUID id) {
-        if (!repository.existsById(id)) {
+    public void deleteCustomer(UUID customerId) {
+        if (!repository.existsById(customerId)) {
             throw new CustomerNotFoundException();
         }
-        repository.deleteById(id);
+        repository.deleteById(customerId);
     }
 }

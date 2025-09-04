@@ -1,9 +1,13 @@
 package com.omar.fbank.customeraccount;
 
 import com.omar.fbank.account.*;
+import com.omar.fbank.account.exception.AccountNotFoundException;
+import com.omar.fbank.account.exception.NotEmptyAccountException;
 import com.omar.fbank.customer.Customer;
 import com.omar.fbank.customer.CustomerRepository;
 import com.omar.fbank.customer.exception.CustomerNotFoundException;
+import com.omar.fbank.customeraccount.exception.*;
+import com.omar.fbank.transaction.exception.InactiveAccountException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,25 +25,25 @@ public class CustomerAccountService {
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
 
-    public List<CustomerAccount> findAll() {
+    public List<CustomerAccount> getCustomerAccounts() {
         return repository.findAll();
     }
 
-    public Optional<CustomerAccount> findById(UUID id) {
-        return Optional.ofNullable(repository.findById(id).orElseThrow(CustomerAccountNotFoundException::new));
+    public Optional<CustomerAccount> getCustomerAccountById(UUID customerAccountId) {
+        return Optional.ofNullable(repository.findById(customerAccountId).orElseThrow(CustomerAccountNotFoundException::new));
     }
 
-    public List<CustomerAccount> findByCustomerId(UUID customerId) {
+    public List<CustomerAccount> getCustomerAccountsByCustomerId(UUID customerId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
         return repository.findByCustomer(customer);
     }
 
-    public List<CustomerAccount> findByAccountId(UUID accountId) {
+    public List<CustomerAccount> getCustomerAccountsByAccountId(UUID accountId) {
         Account account = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
         return repository.findByAccount(account);
     }
 
-    public Optional<CustomerAccount> findByCustomerAndAccount(UUID customerId, UUID accountId) {
+    public Optional<CustomerAccount> getCustomerAccountByCustomerAndAccountIds(UUID customerId, UUID accountId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
         Account account = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
 
@@ -50,12 +54,16 @@ public class CustomerAccountService {
         Optional<Customer> optionalCustomer = Optional.ofNullable(customer);
         Optional<Account> optionalAccount = Optional.ofNullable(account);
 
+        if (optionalAccount.isPresent() && optionalAccount.orElseThrow().getStatus() == AccountStatus.INACTIVE) {
+            throw new InactiveAccountException();
+        }
+
         if (optionalCustomer.isPresent() && optionalAccount.isPresent()) {
-            List<CustomerAccount> customerAccountList = findByAccountId(account.getId());
+            List<CustomerAccount> customerAccountList = getCustomerAccountsByAccountId(account.getId());
 
             for (CustomerAccount customerAccount : customerAccountList) {
                 if (customerAccount.isOwner()) {
-                    repository.save(new CustomerAccount(null, customer, account, true));
+                    repository.save(new CustomerAccount(null, customer, account, false));
                     return;
                 }
             }
@@ -74,12 +82,14 @@ public class CustomerAccountService {
             throw new SelfAssignmentNotAllowedException();
         }
 
-        repository.save(new CustomerAccount(null, customer, account, false));
+        if (customer != null && account.getStatus() == AccountStatus.ACTIVE) {
+            create(customer, account);
+        }
     }
 
 
-    public void update(UUID id, boolean isOwner) {
-        CustomerAccount customerAccount = findById(id)
+    public void updateCustomerAccountOwnership(UUID customerAccountId, boolean isOwner) {
+        CustomerAccount customerAccount = getCustomerAccountById(customerAccountId)
                 .orElseThrow(CustomerAccountNotFoundException::new);
 
         if (isOwner == customerAccount.isOwner()){
@@ -98,8 +108,8 @@ public class CustomerAccountService {
         repository.save(customerAccount);
     }
 
-    public void deleteById(UUID id) {
-        CustomerAccount customerAccount = findById(id)
+    public void deleteCustomerAccountById(UUID customerAccountId) {
+        CustomerAccount customerAccount = getCustomerAccountById(customerAccountId)
                 .orElseThrow(CustomerAccountNotFoundException::new);
 
         if (customerAccount.getAccount().getBalance().compareTo(BigDecimal.ZERO) != 0) {
@@ -113,6 +123,6 @@ public class CustomerAccountService {
             throw new OnlyOneOwnerCustomerAccountException();
         }
 
-        repository.deleteById(id);
+        repository.deleteById(customerAccountId);
     }
 }

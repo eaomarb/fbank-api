@@ -17,43 +17,43 @@ public class CustomerAccountController {
 
     @GetMapping("")
     public List<CustomerAccount> getCustomerAccounts() {
-        return service.findAll();
+        return service.getCustomerAccounts();
     }
 
-    @GetMapping("/{id}")
-    public Optional<CustomerAccount> getCustomerAccount(@PathVariable UUID id) {
-        return service.findById(id);
+    @GetMapping("/{customerAccountId}")
+    public Optional<CustomerAccount> getCustomerAccountById(@PathVariable UUID customerAccountId) {
+        return service.getCustomerAccountById(customerAccountId);
     }
 
-    @GetMapping("/customer/{id}")
-    public List<CustomerAccount> getCustomerAccountByCustomerId(@PathVariable UUID id) {
-        return service.findByCustomerId(id);
+    @GetMapping("/customer/{customerId}")
+    public List<CustomerAccount> getCustomerAccountsByCustomerId(@PathVariable UUID customerId) {
+        return service.getCustomerAccountsByCustomerId(customerId);
     }
 
-    @GetMapping("/account/{id}")
-    public List<CustomerAccount> getCustomerAccountByAccountId(@PathVariable UUID id) {
-        return service.findByAccountId(id);
+    @GetMapping("/account/{accountId}")
+    public List<CustomerAccount> getCustomerAccountByAccountId(@PathVariable UUID accountId) {
+        return service.getCustomerAccountsByAccountId(accountId);
     }
 
     @GetMapping("/{customerId}/{accountId}")
-    public Optional<CustomerAccount> getCustomerAccountByCustomerIdAndAccountId(@PathVariable UUID customerId, @PathVariable UUID accountId) {
-        return service.findByCustomerAndAccount(customerId, accountId);
+    public Optional<CustomerAccount> getCustomerAccountByCustomerAndAccountId(@PathVariable UUID customerId, @PathVariable UUID accountId) {
+        return service.getCustomerAccountByCustomerAndAccountIds(customerId, accountId);
     }
 
-    @PutMapping("/{accountId}/{customerId}")
+    @PostMapping("/{accountId}/{customerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void addCustomerToAccount(@Valid @PathVariable UUID accountId, @Valid @PathVariable UUID customerId) {
+    public void createCustomerAccount(@Valid @PathVariable UUID accountId, @Valid @PathVariable UUID customerId) {
         service.addCustomerToAccount(accountId, customerId);
     }
 
-    @PatchMapping("/{id}/ownership")
+    @PatchMapping("/{customerAccountId}/ownership")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateCustomerAccount(@Valid @PathVariable UUID id, @Valid @RequestParam boolean isOwner) {
-        service.update(id, isOwner);
+    public void updateCustomerAccountOwnership(@Valid @PathVariable UUID customerAccountId, @Valid @RequestParam boolean isOwner) {
+        service.updateCustomerAccountOwnership(customerAccountId, isOwner);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteCustomerAccount(@PathVariable UUID id) {
-        service.deleteById(id);
+    @DeleteMapping("/{customerAccountId}")
+    public void deleteCustomerAccountById(@PathVariable UUID customerAccountId) {
+        service.deleteCustomerAccountById(customerAccountId);
     }
 }

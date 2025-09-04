@@ -1,6 +1,11 @@
 package com.omar.fbank.common;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
+import org.iban4j.IbanFormatException;
+import org.iban4j.InvalidCheckDigitException;
+import org.iban4j.UnsupportedCountryException;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,14 +50,40 @@ public class GlobalExceptionHandler {
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("path", request.getRequestURI());
         body.put("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now()));
+        body.put("errors", NestedExceptionUtils.getMostSpecificCause(ex).getMessage());
 
-        if (ex.getMessage().toLowerCase().contains("duplicate key")) {
-            body.put("error", "A value you entered already exists. Please provide a unique value and try again.");
-        }
+        return ResponseEntity.badRequest().body(body);
+    }
 
-        if (ex.getMessage().toLowerCase().contains("null value")) {
-            body.put("error", "A required field is missing or null.");
-        }
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(
+            ConstraintViolationException ex,
+            HttpServletRequest request
+    ){
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("path", request.getRequestURI());
+        body.put("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now()));
+        ex.getConstraintViolations()
+                .forEach(violation -> body.put(violation.getPropertyPath().toString(), violation.getMessageTemplate()));
+
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler({
+            IbanFormatException.class,
+            InvalidCheckDigitException.class, UnsupportedCountryException.class
+    })
+    public ResponseEntity<Map<String, Object>> handleInvalidIbanException(
+            Exception ex,
+            HttpServletRequest request
+    ){
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("path", request.getRequestURI());
+        body.put("timestamp", DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now()));
+        body.put("errors", ex.getMessage());
+
         return ResponseEntity.badRequest().body(body);
     }
 }

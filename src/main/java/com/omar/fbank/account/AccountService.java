@@ -1,9 +1,9 @@
 package com.omar.fbank.account;
 
+import com.omar.fbank.account.exception.AccountNotFoundException;
 import com.omar.fbank.customer.Customer;
 import com.omar.fbank.customer.CustomerRepository;
-import com.omar.fbank.customeraccount.CustomerAccount;
-import com.omar.fbank.customeraccount.CustomerAccountRepository;
+import com.omar.fbank.customer.exception.CustomerNotFoundException;
 import com.omar.fbank.customeraccount.CustomerAccountService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,22 +22,25 @@ import java.util.UUID;
 public class AccountService {
     private final AccountRepository repository;
     private final CustomerRepository customerRepository;
-    private final CustomerAccountRepository customerAccountRepository;
     private final CustomerAccountService customerAccountService;
 
 
-    public Optional<Account> findAccountById(UUID accountId) {
+    public Optional<Account> getAccountById(UUID accountId) {
         return Optional.ofNullable(repository.findById(accountId)
-                .orElseThrow(com.omar.fbank.account.AccountNotFoundException::new));
+                .orElseThrow(AccountNotFoundException::new));
     }
 
-    public List<Account> findAccounts() {
+    public List<Account> getAccounts() {
         return repository.findAll();
     }
 
     public Account createAccount(UUID customerId) {
         Account account = new Account();
         Customer customer = customerRepository.getCustomerById(customerId);
+
+        if (customer == null) {
+            throw new CustomerNotFoundException();
+        }
 
         String iban;
         do {
@@ -46,6 +49,7 @@ public class AccountService {
 
         account.setIban(iban);
         account.setBalance(BigDecimal.valueOf(0));
+        account.setStatus(AccountStatus.ACTIVE);
         repository.save(account);
 
         customerAccountService.create(customer, account);
@@ -53,23 +57,13 @@ public class AccountService {
         return account;
     }
 
-    public void addCustomerToAccount(UUID accountId, UUID customerId) {
-        Customer customer = customerRepository.getCustomerById(customerId);
-        Account account = findAccountById(accountId).orElseThrow();
-
-        if (customer != null) {
-            customerAccountService.create(customer, account);
-        }
-
-    }
-
     public void deleteAccount(UUID accountId) {
         if (!repository.existsById(accountId)) {
-            throw new com.omar.fbank.account.AccountNotFoundException();
+            throw new AccountNotFoundException();
+        } else {
+            repository.findById(accountId).orElseThrow().setStatus(AccountStatus.INACTIVE);
         }
-        List<CustomerAccount> customersAccounts = customerAccountService.findByAccountId(accountId);
-        customerAccountRepository.deleteAll(customersAccounts);
-        repository.deleteById(accountId);
+
     }
 
 }

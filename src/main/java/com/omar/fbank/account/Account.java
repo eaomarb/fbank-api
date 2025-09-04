@@ -22,4 +22,8 @@ public class Account {
 
     @Column(name = "iban", nullable = false, unique = true)
     private String iban;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private AccountStatus status;
 }

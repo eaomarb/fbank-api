@@ -2,6 +2,8 @@ package com.omar.fbank.customer;
 
 import com.omar.fbank.account.Account;
 import com.omar.fbank.account.AccountService;
+import com.omar.fbank.transaction.TransactionService;
+import com.omar.fbank.transaction.dto.TransactionResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,15 +19,21 @@ import java.util.UUID;
 public class CustomerController {
     private final CustomerService service;
     private final AccountService accountService;
+    private final TransactionService transactionService;
 
-    @GetMapping("/{id}")
-    public Optional<Customer> findCustomerById(@PathVariable UUID id) {
-        return service.findById(id);
+    @GetMapping("/{customerId}")
+    public Optional<Customer> getCustomerById(@PathVariable UUID customerId) {
+        return service.getCustomerById(customerId);
     }
 
     @GetMapping("")
-    public List<Customer> findCustomers() {
-        return service.findCustomers();
+    public List<Customer> getCustomers() {
+        return service.getCustomers();
+    }
+
+    @GetMapping("{customerId}/transactions")
+    public List<TransactionResponseDto> getTransactionsByCustomerId(@PathVariable UUID customerId) {
+        return transactionService.getTransactionsByCustomerId(customerId);
     }
 
     @PostMapping("")
@@ -40,16 +48,16 @@ public class CustomerController {
         return accountService.createAccount(customerId);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{customerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateCustomer(@PathVariable UUID id, @Valid @RequestBody Customer customer) {
-        service.updateCustomer(id, customer);
+    public void updateCustomer(@PathVariable UUID customerId, @Valid @RequestBody Customer customer) {
+        service.updateCustomer(customerId, customer);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{customerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCustomer(@PathVariable UUID id) {
-        service.deleteCustomer(id);
+    public void deleteCustomer(@PathVariable UUID customerId) {
+        service.deleteCustomer(customerId);
     }
 
 }

@@ -1,13 +1,10 @@
 package com.omar.fbank.customeraccount;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.omar.fbank.account.Account;
 import com.omar.fbank.customer.Customer;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.UUID;
 

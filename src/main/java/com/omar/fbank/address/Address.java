@@ -1,7 +1,6 @@
 package com.omar.fbank.address;
 
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 

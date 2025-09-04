@@ -15,17 +15,17 @@ import java.util.UUID;
 public class AddressService {
     private final AddressRepository repository;
 
-    public Optional<Address> findById(UUID id) {
-        return Optional.ofNullable(repository.findById(id)
+    public Optional<Address> getAddressById(UUID addressId) {
+        return Optional.ofNullable(repository.findById(addressId)
                 .orElseThrow(AddressNotFoundException::new));
     }
 
-    public List<Address> findAll() {
+    public List<Address> getAddresses() {
         return repository.findAll();
     }
 
-    public void updateAddress(UUID id, Address address) {
-        Optional<Address> addressOptional = repository.findById(id);
+    public void updateAddress(UUID addressId, Address address) {
+        Optional<Address> addressOptional = repository.findById(addressId);
 
         if (addressOptional.isPresent()) {
             Address updatedAddress = addressOptional.get();

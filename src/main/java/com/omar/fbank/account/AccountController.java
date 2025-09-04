@@ -1,12 +1,11 @@
 package com.omar.fbank.account;
 
-import com.omar.fbank.customeraccount.CustomerAccount;
-import jakarta.validation.Valid;
+import com.omar.fbank.transaction.TransactionService;
+import com.omar.fbank.transaction.dto.TransactionResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,25 +15,26 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService service;
+    private final TransactionService transactionService;
 
-    @GetMapping("/{id}")
-    public Optional<Account> findAccountById(@PathVariable UUID id) {
-        return service.findAccountById(id);
+    @GetMapping("/{accountId}")
+    public Optional<Account> getAccountById(@PathVariable UUID accountId) {
+        return service.getAccountById(accountId);
     }
 
     @GetMapping("")
-    public List<Account> findAccounts() {
-        return service.findAccounts();
+    public List<Account> getAccounts() {
+        return service.getAccounts();
     }
 
-    @PostMapping("/accounts/{accountId}/customers")
-    public void addCustomer(@PathVariable UUID accountId, @Valid @RequestBody UUID customerId) {
-        service.addCustomerToAccount(accountId, customerId);
+    @GetMapping("/{accountId}/transactions")
+    public List<TransactionResponseDto> getTransactionsByAccountId(@PathVariable UUID accountId) {
+        return transactionService.getTransactionsByAccountId(accountId);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{accountId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAccount(@PathVariable UUID id) {
-        service.deleteAccount(id);
+    public void deleteAccount(@PathVariable UUID accountId) {
+        service.deleteAccount(accountId);
     }
 }

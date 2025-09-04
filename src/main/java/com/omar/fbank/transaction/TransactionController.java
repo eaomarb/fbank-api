@@ -1,5 +1,9 @@
 package com.omar.fbank.transaction;
 
+import com.omar.fbank.transaction.dto.DepositRequestDto;
+import com.omar.fbank.transaction.dto.TransferRequestDto;
+import com.omar.fbank.transaction.dto.TransactionResponseDto;
+import com.omar.fbank.transaction.dto.WithdrawRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,27 +17,27 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping("")
-    public List<Transaction> getAllTransactions(){
-        return transactionService.findAll();
+    public List<TransactionResponseDto> getTransactions() {
+        return transactionService.getTransactions();
     }
 
-    @GetMapping("/{id}")
-    public Transaction getTransactionById(@PathVariable UUID id){
-        return transactionService.findById(id);
+    @GetMapping("/{transactionId}")
+    public TransactionResponseDto getTransactionById(@PathVariable UUID transactionId) {
+        return transactionService.getTransactionById(transactionId);
     }
 
-    @GetMapping("/{accountId}")
-    public List<Transaction> getTransactionsByAccountId(@PathVariable UUID accountId){
-        return transactionService.findByAccountId(accountId);
+    @PostMapping("/deposit")
+    public TransactionResponseDto deposit(@RequestBody DepositRequestDto depositRequestDto) {
+        return transactionService.deposit(depositRequestDto);
     }
 
-    @PostMapping("")
-    public Transaction createTransaction(@RequestBody Transaction transaction){
-        if (transaction.getTransactionType() == TransactionType.DEPOSIT) {
+    @PostMapping("/withdraw")
+    public TransactionResponseDto withdraw(@RequestBody WithdrawRequestDto withdrawRequestDto) {
+        return transactionService.withdraw(withdrawRequestDto);
+    }
 
-        }
-
-
-        return transactionService.save(transaction);
+    @PostMapping("/transfer")
+    public TransactionResponseDto transfer(@RequestBody TransferRequestDto transferRequestDto) {
+        return transactionService.transfer(transferRequestDto);
     }
 }

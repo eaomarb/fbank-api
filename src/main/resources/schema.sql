@@ -1,16 +1,16 @@
 DROP TYPE IF EXISTS transaction_status CASCADE;
 DROP TYPE IF EXISTS transaction_type CASCADE;
+DROP TYPE IF EXISTS account_status CASCADE;
 
 DROP TABLE IF EXISTS transactions CASCADE;
-DROP TABLE IF EXISTS transactionsx CASCADE;
-DROP TABLE IF EXISTS txns CASCADE;
 DROP TABLE IF EXISTS customer_accounts CASCADE;
 DROP TABLE IF EXISTS customers CASCADE;
 DROP TABLE IF EXISTS accounts CASCADE;
 DROP TABLE IF EXISTS addresses CASCADE;
 
-CREATE TYPE transaction_status AS ENUM('PENDING', 'COMPLETED', 'FAILED');
-CREATE TYPE transaction_type AS ENUM('TRANSFER', 'DEPOSIT', 'WITHDRAW');
+CREATE TYPE transaction_status AS ENUM ('COMPLETED', 'FAILED');
+CREATE TYPE transaction_type AS ENUM ('TRANSFER', 'DEPOSIT', 'WITHDRAW');
+CREATE TYPE account_status AS ENUM ('ACTIVE', 'INACTIVE');
 
 CREATE TABLE addresses
 (
@@ -41,7 +41,8 @@ CREATE TABLE accounts
 (
     id      UUID PRIMARY KEY,
     balance NUMERIC(19, 2) NOT NULL,
-    iban    TEXT           NOT NULL UNIQUE
+    iban    TEXT           NOT NULL UNIQUE,
+    status  account_status NOT NULL
 );
 
 

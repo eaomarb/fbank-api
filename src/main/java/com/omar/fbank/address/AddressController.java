@@ -15,19 +15,19 @@ import java.util.UUID;
 public class AddressController {
     private final AddressService service;
 
-    @GetMapping("/{id}")
-    public Optional<Address> getAddress(@PathVariable UUID id) {
-        return service.findById(id);
+    @GetMapping("/{addressId}")
+    public Optional<Address> getAddressById(@PathVariable UUID addressId) {
+        return service.getAddressById(addressId);
     }
 
     @GetMapping("")
     public List<Address> getAddresses() {
-        return service.findAll();
+        return service.getAddresses();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{addressId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateAddress(@PathVariable UUID id, @RequestBody @Valid Address address) {
-        service.updateAddress(id, address);
+    public void updateAddress(@PathVariable UUID addressId, @RequestBody @Valid Address address) {
+        service.updateAddress(addressId, address);
     }
 }

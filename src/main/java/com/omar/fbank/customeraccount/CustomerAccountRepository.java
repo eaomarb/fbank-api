@@ -23,4 +23,6 @@ public interface CustomerAccountRepository extends JpaRepository<CustomerAccount
     int countByAccountAndIsOwner(@Param("account_id") UUID account_id);
 
     int countCustomerAccountByAccount(Account account);
+
+    List<CustomerAccount> findByCustomer_Id(UUID customerId);
 }
