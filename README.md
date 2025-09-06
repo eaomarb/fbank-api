@@ -3,4 +3,4 @@
 A Spring Boot backend project with accounts, customers, and their relationships using PostgreSQL.
 Includes entities, services, controllers, and error handling.  
 
-Pending: transactions, DTOs, JWT/security, and tests.
+Pending: DTOs, JWT/security, and testing.
