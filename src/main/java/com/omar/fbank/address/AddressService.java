@@ -1,5 +1,8 @@
 package com.omar.fbank.address;
 
+import com.omar.fbank.address.dto.AddressDtoMapper;
+import com.omar.fbank.address.dto.AddressRequestDto;
+import com.omar.fbank.address.dto.AddressResponseDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -14,28 +17,32 @@ import java.util.UUID;
 @Transactional
 public class AddressService {
     private final AddressRepository repository;
+    private final AddressDtoMapper mapper;
 
-    public Optional<Address> getAddressById(UUID addressId) {
-        return Optional.ofNullable(repository.findById(addressId)
-                .orElseThrow(AddressNotFoundException::new));
+    public Optional<AddressResponseDto> getAddressDtoById(UUID addressId) {
+        return Optional.ofNullable(mapper.toResponseDto(repository.findById(addressId)
+                .orElseThrow(AddressNotFoundException::new)));
     }
 
-    public List<Address> getAddresses() {
-        return repository.findAll();
+    public List<AddressResponseDto> getAddressesDto() {
+        return repository.findAll()
+                .stream()
+                .map(mapper::toResponseDto)
+                .toList();
     }
 
-    public void updateAddress(UUID addressId, Address address) {
+    public void updateAddress(UUID addressId, AddressRequestDto addressRequestDto) {
         Optional<Address> addressOptional = repository.findById(addressId);
 
         if (addressOptional.isPresent()) {
             Address updatedAddress = addressOptional.get();
 
-            updatedAddress.setCity(address.getCity());
-            updatedAddress.setDoor(address.getDoor());
-            updatedAddress.setFloor(address.getFloor());
-            updatedAddress.setProvince(address.getProvince());
-            updatedAddress.setStreetNumber(address.getStreetNumber());
-            updatedAddress.setStreetName(address.getStreetName());
+            updatedAddress.setCity(addressRequestDto.city());
+            updatedAddress.setDoor(addressRequestDto.door());
+            updatedAddress.setFloor(addressRequestDto.floor());
+            updatedAddress.setProvince(addressRequestDto.province());
+            updatedAddress.setStreetNumber(addressRequestDto.streetNumber());
+            updatedAddress.setStreetName(addressRequestDto.streetName());
 
             repository.save(updatedAddress);
         } else {

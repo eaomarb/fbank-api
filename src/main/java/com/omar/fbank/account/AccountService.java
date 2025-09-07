@@ -1,5 +1,7 @@
 package com.omar.fbank.account;
 
+import com.omar.fbank.account.dto.AccountDtoMapper;
+import com.omar.fbank.account.dto.AccountResponseDto;
 import com.omar.fbank.account.exception.AccountNotFoundException;
 import com.omar.fbank.customer.Customer;
 import com.omar.fbank.customer.CustomerRepository;
@@ -23,18 +25,27 @@ public class AccountService {
     private final AccountRepository repository;
     private final CustomerRepository customerRepository;
     private final CustomerAccountService customerAccountService;
+    private final AccountDtoMapper mapper;
 
+
+    public Optional<AccountResponseDto> getAccountDtoById(UUID accountId) {
+        return Optional.ofNullable(mapper.toResponseDto(repository.findById(accountId)
+                .orElseThrow(AccountNotFoundException::new)));
+    }
 
     public Optional<Account> getAccountById(UUID accountId) {
-        return Optional.ofNullable(repository.findById(accountId)
-                .orElseThrow(AccountNotFoundException::new));
+        return repository.findById(accountId);
     }
 
-    public List<Account> getAccounts() {
-        return repository.findAll();
+    public List<AccountResponseDto> getAccountsDto() {
+        return repository
+                .findAll()
+                .stream()
+                .map(mapper::toResponseDto)
+                .toList();
     }
 
-    public Account createAccount(UUID customerId) {
+    public AccountResponseDto createAccount(UUID customerId) {
         Account account = new Account();
         Customer customer = customerRepository.getCustomerById(customerId);
 
@@ -54,7 +65,7 @@ public class AccountService {
 
         customerAccountService.create(customer, account);
 
-        return account;
+        return mapper.toResponseDto(account);
     }
 
     public void deleteAccount(UUID accountId) {

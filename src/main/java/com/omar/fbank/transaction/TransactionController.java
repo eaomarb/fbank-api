@@ -4,6 +4,7 @@ import com.omar.fbank.transaction.dto.DepositRequestDto;
 import com.omar.fbank.transaction.dto.TransferRequestDto;
 import com.omar.fbank.transaction.dto.TransactionResponseDto;
 import com.omar.fbank.transaction.dto.WithdrawRequestDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,26 +19,26 @@ public class TransactionController {
 
     @GetMapping("")
     public List<TransactionResponseDto> getTransactions() {
-        return transactionService.getTransactions();
+        return transactionService.getTransactionsDto();
     }
 
     @GetMapping("/{transactionId}")
     public TransactionResponseDto getTransactionById(@PathVariable UUID transactionId) {
-        return transactionService.getTransactionById(transactionId);
+        return transactionService.getTransactionDtoById(transactionId);
     }
 
     @PostMapping("/deposit")
-    public TransactionResponseDto deposit(@RequestBody DepositRequestDto depositRequestDto) {
+    public TransactionResponseDto deposit(@Valid @RequestBody DepositRequestDto depositRequestDto) {
         return transactionService.deposit(depositRequestDto);
     }
 
     @PostMapping("/withdraw")
-    public TransactionResponseDto withdraw(@RequestBody WithdrawRequestDto withdrawRequestDto) {
+    public TransactionResponseDto withdraw(@Valid @RequestBody WithdrawRequestDto withdrawRequestDto) {
         return transactionService.withdraw(withdrawRequestDto);
     }
 
     @PostMapping("/transfer")
-    public TransactionResponseDto transfer(@RequestBody TransferRequestDto transferRequestDto) {
+    public TransactionResponseDto transfer(@Valid @RequestBody TransferRequestDto transferRequestDto) {
         return transactionService.transfer(transferRequestDto);
     }
 }

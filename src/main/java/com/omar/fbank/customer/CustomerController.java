@@ -1,7 +1,9 @@
 package com.omar.fbank.customer;
 
-import com.omar.fbank.account.Account;
 import com.omar.fbank.account.AccountService;
+import com.omar.fbank.account.dto.AccountResponseDto;
+import com.omar.fbank.customer.dto.CustomerRequestDto;
+import com.omar.fbank.customer.dto.CustomerResponseDto;
 import com.omar.fbank.transaction.TransactionService;
 import com.omar.fbank.transaction.dto.TransactionResponseDto;
 import jakarta.validation.Valid;
@@ -22,36 +24,36 @@ public class CustomerController {
     private final TransactionService transactionService;
 
     @GetMapping("/{customerId}")
-    public Optional<Customer> getCustomerById(@PathVariable UUID customerId) {
-        return service.getCustomerById(customerId);
+    public Optional<CustomerResponseDto> getCustomerById(@PathVariable UUID customerId) {
+        return service.getCustomerDtoById(customerId);
     }
 
     @GetMapping("")
-    public List<Customer> getCustomers() {
-        return service.getCustomers();
+    public List<CustomerResponseDto> getCustomers() {
+        return service.getCustomersDto();
     }
 
     @GetMapping("{customerId}/transactions")
     public List<TransactionResponseDto> getTransactionsByCustomerId(@PathVariable UUID customerId) {
-        return transactionService.getTransactionsByCustomerId(customerId);
+        return transactionService.getTransactionsDtoByCustomerId(customerId);
     }
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public Customer createCustomer(@Valid @RequestBody Customer customer) {
-        return service.createCustomer(customer);
+    public CustomerResponseDto createCustomer(@Valid @RequestBody CustomerRequestDto customerRequestDto) {
+        return service.createCustomer(customerRequestDto);
     }
 
     @PostMapping("/{customerId}/accounts")
     @ResponseStatus(HttpStatus.CREATED)
-    public Account createAccount(@Valid @PathVariable UUID customerId) {
+    public AccountResponseDto createAccount(@Valid @PathVariable UUID customerId) {
         return accountService.createAccount(customerId);
     }
 
     @PutMapping("/{customerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateCustomer(@PathVariable UUID customerId, @Valid @RequestBody Customer customer) {
-        service.updateCustomer(customerId, customer);
+    public void updateCustomer(@PathVariable UUID customerId, @Valid @RequestBody CustomerRequestDto customerRequestDto) {
+        service.updateCustomer(customerId, customerRequestDto);
     }
 
     @DeleteMapping("/{customerId}")

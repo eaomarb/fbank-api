@@ -27,7 +27,7 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final CustomerAccountRepository customerAccountRepository;
 
-    public List<TransactionResponseDto> getTransactions() {
+    public List<TransactionResponseDto> getTransactionsDto() {
         return repository
                 .findAll(Sort.by(Sort.Direction.DESC, "transactionDate"))
                 .stream()
@@ -35,17 +35,17 @@ public class TransactionService {
                 .toList();
     }
 
-    public TransactionResponseDto getTransactionById(UUID transactionId) {
+    public TransactionResponseDto getTransactionDtoById(UUID transactionId) {
         Transaction transaction = repository.findById(transactionId).orElseThrow(TransactionNotFoundException::new);
 
         return mapper.toResponseDto(transaction);
     }
 
-    public List<TransactionResponseDto> getTransactionsByAccountId(UUID accountId) {
+    public List<TransactionResponseDto> getTransactionsDtoByAccountId(UUID accountId) {
         return repository.findByAccountIdOrderByTransactionDate(accountId);
     }
 
-    public List<TransactionResponseDto> getTransactionsByCustomerId(UUID customerId) {
+    public List<TransactionResponseDto> getTransactionsDtoByCustomerId(UUID customerId) {
         List<CustomerAccount> customerAccounts = customerAccountRepository.findByCustomer_Id(customerId);
 
         List<UUID> accounts = customerAccounts
@@ -65,7 +65,7 @@ public class TransactionService {
     public TransactionResponseDto deposit(DepositRequestDto depositRequestDto) {
         Transaction deposit = mapper.toEntity(depositRequestDto);
 
-        if (deposit.account.getStatus() == AccountStatus.INACTIVE){
+        if (deposit.getAccount().getStatus() == AccountStatus.INACTIVE){
             throw new InactiveAccountException();
         }
 
@@ -82,7 +82,7 @@ public class TransactionService {
 
     public TransactionResponseDto withdraw(WithdrawRequestDto withdrawRequestDto) {
         Transaction withdraw = mapper.toEntity(withdrawRequestDto);
-        Account account = withdraw.account;
+        Account account = withdraw.getAccount();
 
         if (account.getStatus() == AccountStatus.INACTIVE){
             throw new InactiveAccountException();
@@ -101,7 +101,7 @@ public class TransactionService {
 
     public TransactionResponseDto transfer(TransferRequestDto transferRequestDto) {
         Transaction transfer = mapper.toEntity(transferRequestDto);
-        Account originAccount = transfer.account;
+        Account originAccount = transfer.getAccount();
 
         if (originAccount.getStatus() == AccountStatus.INACTIVE){
             throw new InactiveAccountException();

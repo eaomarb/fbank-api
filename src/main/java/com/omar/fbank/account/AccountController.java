@@ -1,5 +1,6 @@
 package com.omar.fbank.account;
 
+import com.omar.fbank.account.dto.AccountResponseDto;
 import com.omar.fbank.transaction.TransactionService;
 import com.omar.fbank.transaction.dto.TransactionResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -18,18 +19,18 @@ public class AccountController {
     private final TransactionService transactionService;
 
     @GetMapping("/{accountId}")
-    public Optional<Account> getAccountById(@PathVariable UUID accountId) {
-        return service.getAccountById(accountId);
+    public Optional<AccountResponseDto> getAccountById(@PathVariable UUID accountId) {
+        return service.getAccountDtoById(accountId);
     }
 
     @GetMapping("")
-    public List<Account> getAccounts() {
-        return service.getAccounts();
+    public List<AccountResponseDto> getAccounts() {
+        return service.getAccountsDto();
     }
 
     @GetMapping("/{accountId}/transactions")
     public List<TransactionResponseDto> getTransactionsByAccountId(@PathVariable UUID accountId) {
-        return transactionService.getTransactionsByAccountId(accountId);
+        return transactionService.getTransactionsDtoByAccountId(accountId);
     }
 
     @DeleteMapping("/{accountId}")

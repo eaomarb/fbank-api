@@ -18,7 +18,7 @@ public class Address {
         private UUID id;
 
         @Column(name = "street_name", nullable = false)
-        @NotBlank(message = "Street name cannot be blank.")
+        @NotBlank(message = "Street name can't be blank.")
         private String streetName;
 
         @Column(name = "street_number", nullable = false)

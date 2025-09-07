@@ -23,35 +23,35 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
-    UUID id;
+    private UUID id;
 
     @Column(name = "transaction_date", nullable = false, updatable = false)
     @CreationTimestamp
-    LocalDateTime transactionDate;
+    private LocalDateTime transactionDate;
 
     @ManyToOne
     @JoinColumn(name = "origin_account", referencedColumnName = "id", nullable = false)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
-    Account account;
+    private Account account;
 
     @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     @DecimalMin(value = "0", inclusive = false, message = "Transaction amount must be positive.")
-    BigDecimal amount;
+    private BigDecimal amount;
 
     @Column(name = "beneficiary_name")
-    String beneficiaryName;
+    private String beneficiaryName;
 
     @Column(name = "concept")
-    String concept;
+    private String concept;
 
     @Column(name = "beneficiary_iban")
-    String beneficiaryIban;
+    private String beneficiaryIban;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    TransactionStatus transactionStatus;
+    private TransactionStatus transactionStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    TransactionType transactionType;
+    private TransactionType transactionType;
 }

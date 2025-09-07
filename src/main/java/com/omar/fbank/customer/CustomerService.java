@@ -1,10 +1,14 @@
 package com.omar.fbank.customer;
 
 import com.omar.fbank.address.AddressService;
+import com.omar.fbank.customer.dto.CustomerDtoMapper;
+import com.omar.fbank.customer.dto.CustomerRequestDto;
+import com.omar.fbank.customer.dto.CustomerResponseDto;
 import com.omar.fbank.customer.exception.CustomerNotFoundException;
 import com.omar.fbank.customer.exception.EmailAlreadyExistsException;
 import com.omar.fbank.customer.exception.InvalidNifException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,45 +22,46 @@ import java.util.UUID;
 public class CustomerService {
     private final CustomerRepository repository;
     private final AddressService addressService;
+    private final CustomerDtoMapper customerDtoMapper;
 
-    public Optional<Customer> getCustomerById(UUID customerId) {
-        return repository.findById(customerId);
+    public Optional<CustomerResponseDto> getCustomerDtoById(UUID customerId) {
+        return Optional.ofNullable(customerDtoMapper.toResponseDto(repository.findById(customerId).orElseThrow()));
     }
 
-    public List<Customer> getCustomers() {
-        return repository.findAll();
+    public List<CustomerResponseDto> getCustomersDto() {
+        return repository.findAll()
+                .stream()
+                .map(customerDtoMapper::toResponseDto)
+                .toList();
     }
 
-    public Customer createCustomer(Customer customer) {
-        if (!NifValidator.isValidNIF(customer.getDocumentId())) {
+    public CustomerResponseDto createCustomer(@Valid CustomerRequestDto customerRequestDto) {
+        if (!NifValidator.isValidNIF(customerRequestDto.documentId())) {
             throw new InvalidNifException();
         }
 
-        return repository.save(customer);
+        return customerDtoMapper.toResponseDto(repository.save(customerDtoMapper.toEntity(customerRequestDto)));
     }
 
-    public void updateCustomer(UUID customerId, Customer customer) {
-        Customer existingCustomer = repository.findById(customerId)
+    public void updateCustomer(UUID customerId, @Valid CustomerRequestDto customerRequestDto) {
+        Customer customer = repository.findById(customerId)
                 .orElseThrow(CustomerNotFoundException::new);
 
-        // Update Customer
-        if (NifValidator.isValidNIF(customer.getDocumentId())) {
-            existingCustomer.setDocumentId(customer.getDocumentId());
-        } else {
+        if (!NifValidator.isValidNIF(customerRequestDto.documentId())) {
             throw new InvalidNifException();
         }
+        customer.setDocumentId(customerRequestDto.documentId());
 
-        if (repository.existsByEmail(customer.getEmail())) {
+        if (repository.existsByEmailAndIdNot(customerRequestDto.email(), customerId)){
             throw new EmailAlreadyExistsException();
         }
+        customer.setEmail(customerRequestDto.email());
 
-        existingCustomer.setName(customer.getName());
-        existingCustomer.setAddress(customer.getAddress());
-        existingCustomer.setEmail(customer.getEmail());
-        existingCustomer.setPhone(customer.getPhone());
-        existingCustomer.setLastName(customer.getLastName());
+        customer.setName(customerRequestDto.name());
+        customer.setLastName(customerRequestDto.lastName());
+        customer.setPhone(customerRequestDto.phone());
 
-        addressService.updateAddress(existingCustomer.getAddress().getId(), existingCustomer.getAddress());
+        addressService.updateAddress(customer.getAddress().getId(), customerRequestDto.addressRequestDto());
     }
 
     public void deleteCustomer(UUID customerId) {
