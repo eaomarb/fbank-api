@@ -6,6 +6,8 @@ import com.omar.fbank.account.exception.NotEmptyAccountException;
 import com.omar.fbank.customer.Customer;
 import com.omar.fbank.customer.CustomerRepository;
 import com.omar.fbank.customer.exception.CustomerNotFoundException;
+import com.omar.fbank.customeraccount.dto.CustomerAccountDtoMapper;
+import com.omar.fbank.customeraccount.dto.CustomerAccountResponseDto;
 import com.omar.fbank.customeraccount.exception.*;
 import com.omar.fbank.transaction.exception.InactiveAccountException;
 import jakarta.transaction.Transactional;
@@ -24,18 +26,37 @@ public class CustomerAccountService {
     private final CustomerAccountRepository repository;
     private final CustomerRepository customerRepository;
     private final AccountRepository accountRepository;
+    private final CustomerAccountDtoMapper mapper;
 
-    public List<CustomerAccount> getCustomerAccounts() {
-        return repository.findAll();
+    public List<CustomerAccountResponseDto> getCustomerAccounts() {
+        return repository.findAll()
+                .stream()
+                .map(mapper::toResponseDto)
+                .toList();
+    }
+
+    public Optional<CustomerAccountResponseDto> getCustomerAccountDtoById(UUID customerAccountId) {
+        return Optional.of(mapper.toResponseDto(repository.findById(customerAccountId).orElseThrow(CustomerNotFoundException::new)));
     }
 
     public Optional<CustomerAccount> getCustomerAccountById(UUID customerAccountId) {
-        return Optional.ofNullable(repository.findById(customerAccountId).orElseThrow(CustomerAccountNotFoundException::new));
+        return Optional.of(repository.findById(customerAccountId).orElseThrow(CustomerNotFoundException::new));
     }
 
-    public List<CustomerAccount> getCustomerAccountsByCustomerId(UUID customerId) {
+    public List<CustomerAccountResponseDto> getCustomerAccountsByCustomerId(UUID customerId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
-        return repository.findByCustomer(customer);
+        return repository.findByCustomer(customer)
+                .stream()
+                .map(mapper::toResponseDto)
+                .toList();
+    }
+
+    public List<CustomerAccountResponseDto> getCustomerAccountsDtoByAccountId(UUID accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
+        return repository.findByAccount(account)
+                .stream()
+                .map(mapper::toResponseDto)
+                .toList();
     }
 
     public List<CustomerAccount> getCustomerAccountsByAccountId(UUID accountId) {
@@ -43,11 +64,11 @@ public class CustomerAccountService {
         return repository.findByAccount(account);
     }
 
-    public Optional<CustomerAccount> getCustomerAccountByCustomerAndAccountIds(UUID customerId, UUID accountId) {
+    public Optional<CustomerAccountResponseDto> getCustomerAccountByCustomerAndAccountIds(UUID customerId, UUID accountId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
         Account account = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
 
-        return Optional.ofNullable(repository.findByCustomerAndAccount(customer, account).orElseThrow(CustomerAccountNotFoundByCustomerAndAccountException::new));
+        return Optional.ofNullable(mapper.toResponseDto(repository.findByCustomerAndAccount(customer, account).orElseThrow(CustomerAccountNotFoundByCustomerAndAccountException::new)));
     }
 
     public void create(Customer customer, Account account) {
