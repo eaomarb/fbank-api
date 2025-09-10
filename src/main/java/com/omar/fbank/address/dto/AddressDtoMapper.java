@@ -1,9 +1,11 @@
 package com.omar.fbank.address.dto;
 
 import com.omar.fbank.address.Address;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class AddressDtoMapper {
     public Address toEntity(AddressRequestDto addressRequestDto) {
         Address address = new Address();

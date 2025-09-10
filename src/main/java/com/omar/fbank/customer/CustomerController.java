@@ -62,4 +62,10 @@ public class CustomerController {
         service.deleteCustomer(customerId);
     }
 
+    @PostMapping("/{customerId}/reactivate")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reactivateCustomer(@PathVariable UUID customerId) {
+        service.reactivateCustomer(customerId);
+    }
+
 }

@@ -11,8 +11,8 @@ import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
-    List<TransactionResponseDto> findByAccountIdOrderByTransactionDate(UUID accountId);
+    List<TransactionResponseDto> findByAccountIdOrderByCreatedAt(UUID accountId);
 
     @Query("SELECT t FROM Transaction t WHERE t.account.id IN (:accountIds)")
-    List<Transaction> findByAccountIdOrderByTransactionDateAsc(Collection<UUID> accountIds);
+    List<Transaction> findByAccountIdOrderByCreatedAtAsc(Collection<UUID> accountIds);
 }

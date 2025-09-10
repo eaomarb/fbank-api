@@ -5,7 +5,6 @@ import com.omar.fbank.address.dto.AddressRequestDto;
 import com.omar.fbank.address.dto.AddressResponseDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,10 +42,15 @@ public class AddressService {
             updatedAddress.setProvince(addressRequestDto.province());
             updatedAddress.setStreetNumber(addressRequestDto.streetNumber());
             updatedAddress.setStreetName(addressRequestDto.streetName());
+            updatedAddress.setPostalCode(addressRequestDto.postalCode());
 
-            repository.save(updatedAddress);
+            repository.saveAndFlush(updatedAddress);
         } else {
             throw new AddressNotFoundException();
         }
+    }
+
+    public void reactivateAddress(UUID addressId) {
+        repository.reactivateCustomerById(addressId);
     }
 }

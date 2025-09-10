@@ -14,10 +14,11 @@ public class CustomerDtoMapper {
         Customer customer = new Customer();
 
         customer.setName(customerRequestDto.name());
+        customer.setDocumentId(customerRequestDto.documentId());
         customer.setEmail(customerRequestDto.email());
         customer.setLastName(customerRequestDto.lastName());
         customer.setEmail(customerRequestDto.email());
-        customer.setAddress(addressDtoMapper.toEntity(customerRequestDto.addressRequestDto()));
+        customer.setAddress(addressDtoMapper.toEntity(customerRequestDto.address()));
         customer.setAge(customerRequestDto.age());
         customer.setPhone(customerRequestDto.phone());
 

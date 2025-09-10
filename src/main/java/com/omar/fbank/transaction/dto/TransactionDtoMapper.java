@@ -6,6 +6,9 @@ import com.omar.fbank.transaction.Transaction;
 import com.omar.fbank.transaction.TransactionType;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 @Component
 public class TransactionDtoMapper {
     private final AccountService accountService;
@@ -57,7 +60,7 @@ public class TransactionDtoMapper {
     public TransactionResponseDto toResponseDto(Transaction transaction) {
         return new TransactionResponseDto(
                 transaction.getId(),
-                transaction.getTransactionDate(),
+                LocalDateTime.ofInstant(transaction.getCreatedAt(), ZoneId.systemDefault()),
                 transaction.getAccount().getId(),
                 transaction.getAmount(),
                 transaction.getBeneficiaryName(),

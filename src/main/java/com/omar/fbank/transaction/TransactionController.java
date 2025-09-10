@@ -1,8 +1,8 @@
 package com.omar.fbank.transaction;
 
 import com.omar.fbank.transaction.dto.DepositRequestDto;
-import com.omar.fbank.transaction.dto.TransferRequestDto;
 import com.omar.fbank.transaction.dto.TransactionResponseDto;
+import com.omar.fbank.transaction.dto.TransferRequestDto;
 import com.omar.fbank.transaction.dto.WithdrawRequestDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -15,41 +15,52 @@ CREATE TYPE account_status AS ENUM ('ACTIVE', 'INACTIVE');
 CREATE TABLE addresses
 (
     id            UUID PRIMARY KEY,
-    street_name   TEXT NOT NULL,
-    street_number TEXT NOT NULL,
+    street_name   TEXT      NOT NULL,
+    street_number TEXT      NOT NULL,
     floor         TEXT,
     door          TEXT,
-    postal_code   TEXT NOT NULL,
-    city          TEXT NOT NULL,
-    province      TEXT NOT NULL
+    postal_code   TEXT      NOT NULL,
+    city          TEXT      NOT NULL,
+    province      TEXT      NOT NULL,
+    deleted       BOOLEAN   NOT NULL,
+    created_at    TIMESTAMP NOT NULL,
+    updated_at    TIMESTAMP,
+    deleted_at    TIMESTAMP
+
 );
 
 CREATE TABLE customers
 (
     id          UUID PRIMARY KEY,
-    name        TEXT    NOT NULL,
-    last_name   TEXT    NOT NULL,
-    document_id TEXT    NOT NULL UNIQUE,
-    age         INTEGER NOT NULL,
-    address     UUID    NOT NULL,
-    email       TEXT    NOT NULL UNIQUE,
-    phone       TEXT    NOT NULL,
+    name        TEXT      NOT NULL,
+    last_name   TEXT      NOT NULL,
+    document_id TEXT      NOT NULL UNIQUE,
+    age         INTEGER   NOT NULL,
+    address     UUID      NOT NULL,
+    email       TEXT      NOT NULL UNIQUE,
+    phone       TEXT      NOT NULL,
+    deleted     BOOLEAN   NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP,
+    deleted_at  TIMESTAMP,
     FOREIGN KEY (address) REFERENCES addresses (id) ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE accounts
 (
-    id      UUID PRIMARY KEY,
-    balance NUMERIC(19, 2) NOT NULL,
-    iban    TEXT           NOT NULL UNIQUE,
-    status  account_status NOT NULL
+    id         UUID PRIMARY KEY,
+    balance    NUMERIC(19, 2) NOT NULL,
+    iban       TEXT           NOT NULL UNIQUE,
+    status     account_status NOT NULL,
+    created_at TIMESTAMP      NOT NULL,
+    updated_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 
 CREATE TABLE transactions
 (
     id               UUID PRIMARY KEY,
-    transaction_date TIMESTAMP          NOT NULL,
     origin_account   UUID               NOT NULL,
     amount           NUMERIC(19, 2)     NOT NULL,
     beneficiary_name TEXT,
@@ -57,6 +68,8 @@ CREATE TABLE transactions
     beneficiary_iban TEXT,
     status           transaction_status NOT NULL,
     type             transaction_type   NOT NULL,
+    created_at       TIMESTAMP          NOT NULL,
+    updated_at       TIMESTAMP,
     FOREIGN KEY (origin_account) REFERENCES accounts (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (beneficiary_iban) REFERENCES accounts (iban) ON UPDATE NO ACTION ON DELETE NO ACTION
 );
@@ -64,9 +77,13 @@ CREATE TABLE transactions
 CREATE TABLE customer_accounts
 (
     id          UUID PRIMARY KEY,
-    customer_id UUID    NOT NULL,
-    account_id  UUID    NOT NULL,
-    is_owner    BOOLEAN NOT NULL,
+    customer_id UUID      NOT NULL,
+    account_id  UUID      NOT NULL,
+    is_owner    BOOLEAN   NOT NULL,
+    deleted     BOOLEAN   NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP,
+    deleted_at  TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (account_id) REFERENCES accounts (id) ON UPDATE NO ACTION ON DELETE NO ACTION
 );

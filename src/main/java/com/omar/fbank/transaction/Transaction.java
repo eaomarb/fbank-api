@@ -6,12 +6,14 @@ import jakarta.validation.constraints.DecimalMin;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -19,15 +21,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@EntityListeners(AuditingEntityListener.class)
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
-
-    @Column(name = "transaction_date", nullable = false, updatable = false)
-    @CreationTimestamp
-    private LocalDateTime transactionDate;
 
     @ManyToOne
     @JoinColumn(name = "origin_account", referencedColumnName = "id", nullable = false)
@@ -54,4 +53,12 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private TransactionType transactionType;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    Instant createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at", insertable = false)
+    Instant updatedAt;
 }

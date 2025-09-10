@@ -72,9 +72,9 @@ public class AccountService {
         if (!repository.existsById(accountId)) {
             throw new AccountNotFoundException();
         } else {
-            repository.findById(accountId).orElseThrow().setStatus(AccountStatus.INACTIVE);
+            repository.deleteById(accountId);
+            repository.deleteCustomerAccountByAccountId(accountId);
+            repository.updateCustomerAccountDeletedDate(accountId);
         }
-
     }
-
 }

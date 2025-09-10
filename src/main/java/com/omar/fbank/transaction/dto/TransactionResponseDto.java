@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public record TransactionResponseDto(
         UUID id,
-        LocalDateTime transactionDate,
+        LocalDateTime createdAt,
         UUID accountId,
         BigDecimal amount,
         String beneficiaryName,

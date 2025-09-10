@@ -15,7 +15,7 @@ public record CustomerRequestDto(
         String documentId,
 
         @Valid
-        AddressRequestDto addressRequestDto,
+        AddressRequestDto address,
 
         @NotNull
         @Min(value = 18, message = "Age must be 18 or greater")

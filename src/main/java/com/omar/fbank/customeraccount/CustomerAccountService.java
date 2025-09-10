@@ -1,12 +1,15 @@
 package com.omar.fbank.customeraccount;
 
-import com.omar.fbank.account.*;
+import com.omar.fbank.account.Account;
+import com.omar.fbank.account.AccountRepository;
+import com.omar.fbank.account.AccountStatus;
 import com.omar.fbank.account.exception.AccountNotFoundException;
 import com.omar.fbank.account.exception.NotEmptyAccountException;
 import com.omar.fbank.customer.Customer;
 import com.omar.fbank.customer.CustomerRepository;
 import com.omar.fbank.customer.exception.CustomerNotFoundException;
 import com.omar.fbank.customeraccount.dto.CustomerAccountDtoMapper;
+import com.omar.fbank.customeraccount.dto.CustomerAccountRequestDto;
 import com.omar.fbank.customeraccount.dto.CustomerAccountResponseDto;
 import com.omar.fbank.customeraccount.exception.*;
 import com.omar.fbank.transaction.exception.InactiveAccountException;
@@ -84,12 +87,12 @@ public class CustomerAccountService {
 
             for (CustomerAccount customerAccount : customerAccountList) {
                 if (customerAccount.isOwner()) {
-                    repository.save(new CustomerAccount(null, customer, account, false));
+                    repository.save(mapper.toEntity(new CustomerAccountRequestDto(customer.getId(), account.getId(), false)));
                     return;
                 }
             }
 
-            repository.save(new CustomerAccount(null, customer, account, true));
+            repository.save(mapper.toEntity(new CustomerAccountRequestDto(customer.getId(), account.getId(), true)));
         }
     }
 
@@ -113,12 +116,12 @@ public class CustomerAccountService {
         CustomerAccount customerAccount = getCustomerAccountById(customerAccountId)
                 .orElseThrow(CustomerAccountNotFoundException::new);
 
-        if (isOwner == customerAccount.isOwner()){
+        if (isOwner == customerAccount.isOwner()) {
             throw new AlreadyCurrentValueException(isOwner);
         }
 
         if (customerAccount.isOwner()) {
-            int ownerCount = repository.countByAccountAndIsOwner(customerAccount.getAccount().getId());
+            long ownerCount = repository.countByAccountAndIsOwner(customerAccount.getAccount().getId());
 
             if (ownerCount == 1) {
                 throw new OnlyOneOwnerCustomerAccountException();
@@ -137,8 +140,8 @@ public class CustomerAccountService {
             throw new NotEmptyAccountException();
         }
 
-        int ownerCount = repository.countByAccountAndIsOwner(customerAccount.getAccount().getId());
-        int customerCount = repository.countCustomerAccountByAccount(customerAccount.getAccount());
+        long ownerCount = repository.countByAccountAndIsOwner(customerAccount.getAccount().getId());
+        long customerCount = repository.countCustomerAccountByAccount(customerAccount.getAccount());
 
         if (customerAccount.isOwner() && ownerCount == 1 && customerCount > 1) {
             throw new OnlyOneOwnerCustomerAccountException();
