@@ -3,10 +3,11 @@ package com.omar.fbank.customeraccount;
 import com.omar.fbank.customeraccount.dto.CustomerAccountResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,8 +18,8 @@ public class CustomerAccountController {
     private final CustomerAccountService service;
 
     @GetMapping("")
-    public List<CustomerAccountResponseDto> getCustomerAccounts() {
-        return service.getCustomerAccounts();
+    public Page<CustomerAccountResponseDto> getCustomerAccounts(Pageable pageable) {
+        return service.getCustomerAccounts(pageable);
     }
 
     @GetMapping("/{customerAccountId}")
@@ -27,13 +28,13 @@ public class CustomerAccountController {
     }
 
     @GetMapping("/customer/{customerId}")
-    public List<CustomerAccountResponseDto> getCustomerAccountsByCustomerId(@PathVariable UUID customerId) {
-        return service.getCustomerAccountsByCustomerId(customerId);
+    public Page<CustomerAccountResponseDto> getCustomerAccountsByCustomerId(@PathVariable UUID customerId, Pageable pageable) {
+        return service.getCustomerAccountsByCustomerId(customerId, pageable);
     }
 
     @GetMapping("/account/{accountId}")
-    public List<CustomerAccountResponseDto> getCustomerAccountByAccountId(@PathVariable UUID accountId) {
-        return service.getCustomerAccountsDtoByAccountId(accountId);
+    public Page<CustomerAccountResponseDto> getCustomerAccountByAccountId(@PathVariable UUID accountId, Pageable pageable) {
+        return service.getCustomerAccountsDtoByAccountId(accountId, pageable);
     }
 
     @GetMapping("/{customerId}/{accountId}")
@@ -43,8 +44,8 @@ public class CustomerAccountController {
 
     @PostMapping("/{accountId}/{customerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void createCustomerAccount(@Valid @PathVariable UUID accountId, @Valid @PathVariable UUID customerId) {
-        service.addCustomerToAccount(accountId, customerId);
+    public void createCustomerAccount(@Valid @PathVariable UUID accountId, @Valid @PathVariable UUID customerId, Pageable pageable) {
+        service.addCustomerToAccount(accountId, customerId, pageable);
     }
 
     @PatchMapping("/{customerAccountId}/ownership")

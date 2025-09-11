@@ -12,7 +12,8 @@ import com.omar.fbank.transaction.exception.TransactionNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.iban4j.IbanUtil;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,12 +28,10 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final CustomerAccountRepository customerAccountRepository;
 
-    public List<TransactionResponseDto> getTransactionsDto() {
+    public Page<TransactionResponseDto> getTransactionsDto(Pageable pageable) {
         return repository
-                .findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
-                .stream()
-                .map(mapper::toResponseDto)
-                .toList();
+                .findAll(pageable)
+                .map(mapper::toResponseDto);
     }
 
     public TransactionResponseDto getTransactionDtoById(UUID transactionId) {
@@ -41,25 +40,22 @@ public class TransactionService {
         return mapper.toResponseDto(transaction);
     }
 
-    public List<TransactionResponseDto> getTransactionsDtoByAccountId(UUID accountId) {
-        return repository.findByAccountIdOrderByCreatedAt(accountId);
+    public Page<TransactionResponseDto> getTransactionsDtoByAccountId(UUID accountId, Pageable pageable) {
+        return repository.findByAccountId(accountId, pageable)
+                .map(mapper::toResponseDto);
     }
 
-    public List<TransactionResponseDto> getTransactionsDtoByCustomerId(UUID customerId) {
-        List<CustomerAccount> customerAccounts = customerAccountRepository.findByCustomer_Id(customerId);
+    public Page<TransactionResponseDto> getTransactionsDtoByCustomerId(UUID customerId, Pageable pageable) {
+        Page<CustomerAccount> customerAccounts = customerAccountRepository.findByCustomer_Id(customerId, pageable);
 
         List<UUID> accounts = customerAccounts
                 .stream()
                 .map(customerAccount -> customerAccount.getAccount().getId())
                 .toList();
 
-        System.out.println(repository.findByAccountIdOrderByCreatedAtAsc(accounts));
-
         return repository
-                .findByAccountIdOrderByCreatedAtAsc(accounts)
-                .stream()
-                .map(mapper::toResponseDto)
-                .toList();
+                .findByAccountIdList(accounts, pageable)
+                .map(mapper::toResponseDto);
     }
 
     public TransactionResponseDto deposit(DepositRequestDto depositRequestDto) {

@@ -14,9 +14,10 @@ import com.omar.fbank.customeraccount.CustomerAccountRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,11 +39,9 @@ public class CustomerService {
         return repository.findById(customerId);
     }
 
-    public List<CustomerResponseDto> getCustomersDto() {
-        return repository.findAll()
-                .stream()
-                .map(customerDtoMapper::toResponseDto)
-                .toList();
+    public Page<CustomerResponseDto> getCustomersDto(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(customerDtoMapper::toResponseDto);
     }
 
     public CustomerResponseDto createCustomer(@Valid CustomerRequestDto customerRequestDto) {
@@ -74,13 +73,11 @@ public class CustomerService {
         addressService.updateAddress(customer.getAddress().getId(), customerRequestDto.address());
     }
 
-    public void deleteCustomer(UUID customerId) {
+    public void deleteCustomer(UUID customerId, Pageable pageable) {
         Customer customer = getCustomerById(customerId).orElseThrow(CustomerNotFoundException::new);
 
-        List<Account> accounts = customerAccountRepository.findByCustomer(customer)
-                .stream()
-                .map(CustomerAccount::getAccount)
-                .toList();
+        Page<Account> accounts = customerAccountRepository.findByCustomer(customer, pageable)
+                .map(CustomerAccount::getAccount);
 
         for (Account account : accounts) {
             CustomerAccount ca = customerAccountRepository.findByCustomerAndAccount(customer, account).orElseThrow();

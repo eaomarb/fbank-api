@@ -5,9 +5,10 @@ import com.omar.fbank.address.dto.AddressRequestDto;
 import com.omar.fbank.address.dto.AddressResponseDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,11 +24,10 @@ public class AddressService {
                 .orElseThrow(AddressNotFoundException::new)));
     }
 
-    public List<AddressResponseDto> getAddressesDto() {
-        return repository.findAll()
-                .stream()
-                .map(mapper::toResponseDto)
-                .toList();
+    public Page<AddressResponseDto> getAddressesDto(Pageable pageable) {
+        return repository
+                .findAll(pageable)
+                .map(mapper::toResponseDto);
     }
 
     public void updateAddress(UUID addressId, AddressRequestDto addressRequestDto) {

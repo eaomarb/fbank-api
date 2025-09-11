@@ -4,10 +4,11 @@ import com.omar.fbank.address.dto.AddressRequestDto;
 import com.omar.fbank.address.dto.AddressResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,8 +24,8 @@ public class AddressController {
     }
 
     @GetMapping("")
-    public List<AddressResponseDto> getAddresses() {
-        return service.getAddressesDto();
+    public Page<AddressResponseDto> getAddresses(Pageable pageable) {
+        return service.getAddressesDto(pageable);
     }
 
     @PutMapping("/{addressId}")

@@ -11,10 +11,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.iban4j.CountryCode;
 import org.iban4j.Iban;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,15 +38,13 @@ public class AccountService {
         return repository.findById(accountId);
     }
 
-    public List<AccountResponseDto> getAccountsDto() {
+    public Page<AccountResponseDto> getAccountsDto(Pageable pageable) {
         return repository
-                .findAll()
-                .stream()
-                .map(mapper::toResponseDto)
-                .toList();
+                .findAll(pageable)
+                .map(mapper::toResponseDto);
     }
 
-    public AccountResponseDto createAccount(UUID customerId) {
+    public AccountResponseDto createAccount(UUID customerId, Pageable pageable) {
         Account account = new Account();
         Customer customer = customerRepository.getCustomerById(customerId);
 
@@ -63,7 +62,7 @@ public class AccountService {
         account.setStatus(AccountStatus.ACTIVE);
         repository.save(account);
 
-        customerAccountService.create(customer, account);
+        customerAccountService.create(customer, account, pageable);
 
         return mapper.toResponseDto(account);
     }

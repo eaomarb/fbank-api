@@ -4,10 +4,13 @@ import com.omar.fbank.account.dto.AccountResponseDto;
 import com.omar.fbank.transaction.TransactionService;
 import com.omar.fbank.transaction.dto.TransactionResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,13 +27,14 @@ public class AccountController {
     }
 
     @GetMapping("")
-    public List<AccountResponseDto> getAccounts() {
-        return service.getAccountsDto();
+    public Page<AccountResponseDto> getAccounts(Pageable pageable) {
+        return service.getAccountsDto(pageable);
     }
 
     @GetMapping("/{accountId}/transactions")
-    public List<TransactionResponseDto> getTransactionsByAccountId(@PathVariable UUID accountId) {
-        return transactionService.getTransactionsDtoByAccountId(accountId);
+    public Page<TransactionResponseDto> getTransactionsByAccountId(@PathVariable UUID accountId,
+                                                                   @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return transactionService.getTransactionsDtoByAccountId(accountId, pageable);
     }
 
     @DeleteMapping("/{accountId}")

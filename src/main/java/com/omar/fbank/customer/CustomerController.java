@@ -8,10 +8,11 @@ import com.omar.fbank.transaction.TransactionService;
 import com.omar.fbank.transaction.dto.TransactionResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,13 +30,13 @@ public class CustomerController {
     }
 
     @GetMapping("")
-    public List<CustomerResponseDto> getCustomers() {
-        return service.getCustomersDto();
+    public Page<CustomerResponseDto> getCustomers(Pageable pageable) {
+        return service.getCustomersDto(pageable);
     }
 
     @GetMapping("{customerId}/transactions")
-    public List<TransactionResponseDto> getTransactionsByCustomerId(@PathVariable UUID customerId) {
-        return transactionService.getTransactionsDtoByCustomerId(customerId);
+    public Page<TransactionResponseDto> getTransactionsByCustomerId(@PathVariable UUID customerId, Pageable pageable) {
+        return transactionService.getTransactionsDtoByCustomerId(customerId, pageable);
     }
 
     @PostMapping("")
@@ -46,8 +47,8 @@ public class CustomerController {
 
     @PostMapping("/{customerId}/accounts")
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountResponseDto createAccount(@Valid @PathVariable UUID customerId) {
-        return accountService.createAccount(customerId);
+    public AccountResponseDto createAccount(@Valid @PathVariable UUID customerId, Pageable pageable) {
+        return accountService.createAccount(customerId, pageable);
     }
 
     @PutMapping("/{customerId}")
@@ -58,8 +59,8 @@ public class CustomerController {
 
     @DeleteMapping("/{customerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCustomer(@PathVariable UUID customerId) {
-        service.deleteCustomer(customerId);
+    public void deleteCustomer(@PathVariable UUID customerId, Pageable pageable) {
+        service.deleteCustomer(customerId, pageable);
     }
 
     @PostMapping("/{customerId}/reactivate")

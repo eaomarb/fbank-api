@@ -2,21 +2,22 @@ package com.omar.fbank.customeraccount;
 
 import com.omar.fbank.account.Account;
 import com.omar.fbank.customer.Customer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface CustomerAccountRepository extends JpaRepository<CustomerAccount, UUID> {
-    List<CustomerAccount> findByCustomer(Customer customer);
+    Page<CustomerAccount> findByCustomer(Customer customer, Pageable pageable);
 
-    List<CustomerAccount> findByAccount(Account account);
+    Page<CustomerAccount> findByAccount(Account account, Pageable pageable);
 
     Optional<CustomerAccount> findByCustomerAndAccount(Customer customer, Account account);
 
@@ -28,9 +29,9 @@ public interface CustomerAccountRepository extends JpaRepository<CustomerAccount
 
     long countCustomerAccountByAccount(Account account);
 
-    List<CustomerAccount> findByCustomer_Id(UUID customerId);
+    Page<CustomerAccount> findByCustomer_Id(UUID customerId, Pageable pageable);
 
     @Modifying
     @Query("DELETE FROM CustomerAccount WHERE account IN :accounts")
-    void deleteByAccounts(@Param("accounts") List<Account> accounts);
+    void deleteByAccounts(@Param("accounts") Page<Account> accounts);
 }

@@ -15,10 +15,11 @@ import com.omar.fbank.customeraccount.exception.*;
 import com.omar.fbank.transaction.exception.InactiveAccountException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,11 +32,9 @@ public class CustomerAccountService {
     private final AccountRepository accountRepository;
     private final CustomerAccountDtoMapper mapper;
 
-    public List<CustomerAccountResponseDto> getCustomerAccounts() {
-        return repository.findAll()
-                .stream()
-                .map(mapper::toResponseDto)
-                .toList();
+    public Page<CustomerAccountResponseDto> getCustomerAccounts(Pageable pageable) {
+        return repository.findAll(pageable)
+                .map(mapper::toResponseDto);
     }
 
     public Optional<CustomerAccountResponseDto> getCustomerAccountDtoById(UUID customerAccountId) {
@@ -46,25 +45,21 @@ public class CustomerAccountService {
         return Optional.of(repository.findById(customerAccountId).orElseThrow(CustomerNotFoundException::new));
     }
 
-    public List<CustomerAccountResponseDto> getCustomerAccountsByCustomerId(UUID customerId) {
+    public Page<CustomerAccountResponseDto> getCustomerAccountsByCustomerId(UUID customerId, Pageable pageable) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
-        return repository.findByCustomer(customer)
-                .stream()
-                .map(mapper::toResponseDto)
-                .toList();
+        return repository.findByCustomer(customer, pageable)
+                .map(mapper::toResponseDto);
     }
 
-    public List<CustomerAccountResponseDto> getCustomerAccountsDtoByAccountId(UUID accountId) {
+    public Page<CustomerAccountResponseDto> getCustomerAccountsDtoByAccountId(UUID accountId, Pageable pageable) {
         Account account = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
-        return repository.findByAccount(account)
-                .stream()
-                .map(mapper::toResponseDto)
-                .toList();
+        return repository.findByAccount(account, pageable)
+                .map(mapper::toResponseDto);
     }
 
-    public List<CustomerAccount> getCustomerAccountsByAccountId(UUID accountId) {
+    public Page<CustomerAccount> getCustomerAccountsByAccountId(UUID accountId, Pageable pageable) {
         Account account = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
-        return repository.findByAccount(account);
+        return repository.findByAccount(account, pageable);
     }
 
     public Optional<CustomerAccountResponseDto> getCustomerAccountByCustomerAndAccountIds(UUID customerId, UUID accountId) {
@@ -74,7 +69,7 @@ public class CustomerAccountService {
         return Optional.ofNullable(mapper.toResponseDto(repository.findByCustomerAndAccount(customer, account).orElseThrow(CustomerAccountNotFoundByCustomerAndAccountException::new)));
     }
 
-    public void create(Customer customer, Account account) {
+    public void create(Customer customer, Account account, Pageable pageable) {
         Optional<Customer> optionalCustomer = Optional.ofNullable(customer);
         Optional<Account> optionalAccount = Optional.ofNullable(account);
 
@@ -83,7 +78,7 @@ public class CustomerAccountService {
         }
 
         if (optionalCustomer.isPresent() && optionalAccount.isPresent()) {
-            List<CustomerAccount> customerAccountList = getCustomerAccountsByAccountId(account.getId());
+            Page<CustomerAccount> customerAccountList = getCustomerAccountsByAccountId(account.getId(), pageable);
 
             for (CustomerAccount customerAccount : customerAccountList) {
                 if (customerAccount.isOwner()) {
@@ -96,7 +91,7 @@ public class CustomerAccountService {
         }
     }
 
-    public void addCustomerToAccount(UUID accountId, UUID customerId) {
+    public void addCustomerToAccount(UUID accountId, UUID customerId, Pageable pageable) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
         Account account = accountRepository.findById(accountId).orElseThrow(AccountNotFoundException::new);
 
@@ -107,7 +102,7 @@ public class CustomerAccountService {
         }
 
         if (customer != null && account.getStatus() == AccountStatus.ACTIVE) {
-            create(customer, account);
+            create(customer, account, pageable);
         }
     }
 
