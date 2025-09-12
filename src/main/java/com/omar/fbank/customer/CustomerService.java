@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,14 +74,14 @@ public class CustomerService {
         addressService.updateAddress(customer.getAddress().getId(), customerRequestDto.address());
     }
 
-    public void deleteCustomer(UUID customerId, Pageable pageable) {
-        Customer customer = getCustomerById(customerId).orElseThrow(CustomerNotFoundException::new);
+    public void deleteCustomer(UUID customerId) {
+        Customer customer = getCustomerById(customerId)
+                .orElseThrow(CustomerNotFoundException::new);
 
-        Page<Account> accounts = customerAccountRepository.findByCustomer(customer, pageable)
-                .map(CustomerAccount::getAccount);
+        List<CustomerAccount> customerAccounts = customerAccountRepository.findByCustomer(customer);
 
-        for (Account account : accounts) {
-            CustomerAccount ca = customerAccountRepository.findByCustomerAndAccount(customer, account).orElseThrow();
+        for (CustomerAccount ca : customerAccounts) {
+            Account account = ca.getAccount();
 
             if (!ca.isOwner()) {
                 customerAccountRepository.delete(ca);
@@ -88,17 +89,17 @@ public class CustomerService {
                 long otherOwners = customerAccountRepository.countOtherOwners(account.getId(), customerId);
 
                 customerAccountRepository.delete(ca);
+
                 if (otherOwners == 0) {
-                    customerAccountRepository.deleteByAccounts(accounts);
-                    accountRepository.deleteAllAccounts(accounts);
+                    customerAccountRepository.deleteByAccount(account);
+                    accountRepository.delete(account);
                 }
             }
-
-
         }
 
         repository.deleteById(customerId);
     }
+
 
     public void reactivateCustomer(UUID customerId) {
         if (repository.getDeletedCustomerById(customerId) == null) {

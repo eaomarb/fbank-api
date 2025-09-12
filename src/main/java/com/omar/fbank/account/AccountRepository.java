@@ -1,10 +1,8 @@
 package com.omar.fbank.account;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
@@ -22,8 +20,4 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
     @Modifying
     @Query(value = "UPDATE customer_accounts SET deleted_at = now() WHERE account_id = :account_id", nativeQuery = true)
     void updateCustomerAccountDeletedDate(UUID account_id);
-
-    @Modifying
-    @Query("DELETE FROM Account WHERE Account IN :accounts")
-    void deleteAllAccounts(@Param("accounts") Page<Account> accounts);
 }

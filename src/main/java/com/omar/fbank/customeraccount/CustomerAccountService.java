@@ -16,10 +16,12 @@ import com.omar.fbank.transaction.exception.InactiveAccountException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,8 +49,13 @@ public class CustomerAccountService {
 
     public Page<CustomerAccountResponseDto> getCustomerAccountsByCustomerId(UUID customerId, Pageable pageable) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
-        return repository.findByCustomer(customer, pageable)
-                .map(mapper::toResponseDto);
+
+        List<CustomerAccountResponseDto> customerAccounts = repository.findByCustomer(customer)
+                .stream()
+                .map(mapper::toResponseDto)
+                .toList();
+
+        return new PageImpl<>(customerAccounts, pageable, repository.count());
     }
 
     public Page<CustomerAccountResponseDto> getCustomerAccountsDtoByAccountId(UUID accountId, Pageable pageable) {
