@@ -20,7 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE customers SET deleted = true, deleted_at = now() WHERE id = ?")
+@SQLDelete(sql = "UPDATE addresses SET deleted = true, deleted_at = now() WHERE id = ?")
 @SQLRestriction("deleted = false")
 public class Address {
     @Id

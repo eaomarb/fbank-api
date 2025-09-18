@@ -7,7 +7,6 @@ import com.omar.fbank.customer.dto.CustomerDtoMapper;
 import com.omar.fbank.customer.dto.CustomerRequestDto;
 import com.omar.fbank.customer.dto.CustomerResponseDto;
 import com.omar.fbank.customer.exception.CustomerNotFoundException;
-import com.omar.fbank.customer.exception.EmailAlreadyExistsException;
 import com.omar.fbank.customer.exception.InvalidNifException;
 import com.omar.fbank.customeraccount.CustomerAccount;
 import com.omar.fbank.customeraccount.CustomerAccountRepository;
@@ -45,12 +44,12 @@ public class CustomerService {
                 .map(customerDtoMapper::toResponseDto);
     }
 
-    public CustomerResponseDto createCustomer(@Valid CustomerRequestDto customerRequestDto) {
+    public CustomerResponseDto createCustomer(@Valid CustomerRequestDto customerRequestDto, UUID userId) {
         if (!NifValidator.isValidNIF(customerRequestDto.documentId())) {
             throw new InvalidNifException();
         }
 
-        return customerDtoMapper.toResponseDto(repository.saveAndFlush(customerDtoMapper.toEntity(customerRequestDto)));
+        return customerDtoMapper.toResponseDto(repository.saveAndFlush(customerDtoMapper.toEntity(customerRequestDto, userId)));
     }
 
     public void updateCustomer(UUID customerId, @Valid CustomerRequestDto customerRequestDto) {
@@ -61,11 +60,6 @@ public class CustomerService {
             throw new InvalidNifException();
         }
         customer.setDocumentId(customerRequestDto.documentId());
-
-        if (repository.existsByEmailAndIdNot(customerRequestDto.email(), customerId)) {
-            throw new EmailAlreadyExistsException();
-        }
-        customer.setEmail(customerRequestDto.email());
 
         customer.setName(customerRequestDto.name());
         customer.setLastName(customerRequestDto.lastName());

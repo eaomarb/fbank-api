@@ -1,6 +1,7 @@
 package com.omar.fbank.customer.dto;
 
 import com.omar.fbank.address.dto.AddressResponseDto;
+import com.omar.fbank.user.dto.UserResponseDto;
 
 import java.util.UUID;
 
@@ -11,7 +12,7 @@ public record CustomerResponseDto(
         String documentId,
         AddressResponseDto address,
         Integer age,
-        String email,
-        String phone
+        String phone,
+        UserResponseDto user
 ) {
 }

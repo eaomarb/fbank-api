@@ -9,7 +9,8 @@ public class AccountDtoMapper {
         return new AccountResponseDto(
                 account.getId(),
                 account.getBalance(),
-                account.getIban()
+                account.getIban(),
+                account.getStatus()
         );
     }
 }

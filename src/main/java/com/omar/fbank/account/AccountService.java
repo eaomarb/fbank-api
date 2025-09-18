@@ -3,10 +3,12 @@ package com.omar.fbank.account;
 import com.omar.fbank.account.dto.AccountDtoMapper;
 import com.omar.fbank.account.dto.AccountResponseDto;
 import com.omar.fbank.account.exception.AccountNotFoundException;
+import com.omar.fbank.account.exception.NotEmptyAccountException;
 import com.omar.fbank.customer.Customer;
 import com.omar.fbank.customer.CustomerRepository;
 import com.omar.fbank.customer.exception.CustomerNotFoundException;
 import com.omar.fbank.customeraccount.CustomerAccountService;
+import com.omar.fbank.transaction.exception.InactiveAccountException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.iban4j.CountryCode;
@@ -68,12 +70,18 @@ public class AccountService {
     }
 
     public void deleteAccount(UUID accountId) {
-        if (!repository.existsById(accountId)) {
-            throw new AccountNotFoundException();
-        } else {
-            repository.deleteById(accountId);
-            repository.deleteCustomerAccountByAccountId(accountId);
-            repository.updateCustomerAccountDeletedDate(accountId);
+        Account account = repository.findById(accountId).orElseThrow(AccountNotFoundException::new);
+
+        if (account.getStatus() == AccountStatus.INACTIVE){
+            throw new InactiveAccountException();
         }
+
+        if (account.getBalance().compareTo(BigDecimal.valueOf(0)) > 0) {
+            throw new NotEmptyAccountException();
+        }
+
+        repository.deleteById(accountId);
+        repository.deleteCustomerAccountByAccountId(accountId);
+        repository.updateCustomerAccountDeletedDate(accountId);
     }
 }

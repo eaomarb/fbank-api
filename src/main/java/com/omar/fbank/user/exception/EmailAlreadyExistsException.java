@@ -1,4 +1,4 @@
-package com.omar.fbank.customer.exception;
+package com.omar.fbank.user.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

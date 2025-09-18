@@ -1,6 +1,7 @@
 package com.omar.fbank.customer;
 
 import com.omar.fbank.address.Address;
+import com.omar.fbank.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -51,11 +52,6 @@ public class Customer {
     @Min(value = 18, message = "Age must be 18 or greater")
     private Integer age;
 
-    @Column(name = "email", nullable = false, unique = true)
-    @NotBlank(message = "Email can't be empty.")
-    @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Invalid email")
-    private String email;
-
     @Column(name = "phone", nullable = false, length = 9)
     @Size(min = 9, max = 9, message = "Phone number must contain 9 digits.")
     @NotBlank(message = "Phone number can't be empty.")
@@ -63,6 +59,10 @@ public class Customer {
     @Min(value = 600000000, message = "Phone number is invalid.")
     @Max(value = 999999999, message = "Phone number is invalid.")
     private String phone;
+
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private User user;
 
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;

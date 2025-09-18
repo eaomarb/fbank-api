@@ -40,11 +40,11 @@ public class CustomerAccountService {
     }
 
     public Optional<CustomerAccountResponseDto> getCustomerAccountDtoById(UUID customerAccountId) {
-        return Optional.of(mapper.toResponseDto(repository.findById(customerAccountId).orElseThrow(CustomerNotFoundException::new)));
+        return Optional.of(mapper.toResponseDto(repository.findById(customerAccountId).orElseThrow(CustomerAccountNotFoundException::new)));
     }
 
     public Optional<CustomerAccount> getCustomerAccountById(UUID customerAccountId) {
-        return Optional.of(repository.findById(customerAccountId).orElseThrow(CustomerNotFoundException::new));
+        return Optional.of(repository.findById(customerAccountId).orElseThrow(CustomerAccountNotFoundException::new));
     }
 
     public Page<CustomerAccountResponseDto> getCustomerAccountsByCustomerId(UUID customerId, Pageable pageable) {

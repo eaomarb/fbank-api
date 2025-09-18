@@ -11,8 +11,6 @@ import java.util.UUID;
 public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     Customer getCustomerById(UUID customerId);
 
-    boolean existsByEmailAndIdNot(String email, UUID id);
-
     @Query(value = "SELECT * FROM customers c WHERE c.id = :customer_id", nativeQuery = true)
     Customer getDeletedCustomerById(UUID customer_id);
 

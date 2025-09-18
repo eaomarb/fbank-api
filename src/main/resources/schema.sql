@@ -1,16 +1,19 @@
 DROP TYPE IF EXISTS transaction_status CASCADE;
 DROP TYPE IF EXISTS transaction_type CASCADE;
 DROP TYPE IF EXISTS account_status CASCADE;
+DROP TYPE IF EXISTS user_role CASCADE;
 
 DROP TABLE IF EXISTS transactions CASCADE;
 DROP TABLE IF EXISTS customer_accounts CASCADE;
 DROP TABLE IF EXISTS customers CASCADE;
 DROP TABLE IF EXISTS accounts CASCADE;
 DROP TABLE IF EXISTS addresses CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TYPE transaction_status AS ENUM ('COMPLETED', 'FAILED');
 CREATE TYPE transaction_type AS ENUM ('TRANSFER', 'DEPOSIT', 'WITHDRAW');
 CREATE TYPE account_status AS ENUM ('ACTIVE', 'INACTIVE');
+CREATE TYPE user_role AS ENUM ('CUSTOMER', 'ADMIN');
 
 CREATE TABLE addresses
 (
@@ -29,6 +32,18 @@ CREATE TABLE addresses
 
 );
 
+CREATE TABLE users
+(
+    id           UUID PRIMARY KEY,
+    display_name TEXT      NOT NULL,
+    email        TEXT      NOT NULL UNIQUE,
+    password     TEXT      NOT NULL,
+    role         user_role NOT NULL,
+    created_at   TIMESTAMP NOT NULL,
+    updated_at   TIMESTAMP,
+    deleted_at   TIMESTAMP
+);
+
 CREATE TABLE customers
 (
     id          UUID PRIMARY KEY,
@@ -37,13 +52,14 @@ CREATE TABLE customers
     document_id TEXT      NOT NULL UNIQUE,
     age         INTEGER   NOT NULL,
     address     UUID      NOT NULL,
-    email       TEXT      NOT NULL UNIQUE,
-    phone       TEXT      NOT NULL,
+    phone       TEXT      NOT NULL UNIQUE,
+    user_id     UUID      NOT NULL UNIQUE,
     deleted     BOOLEAN   NOT NULL,
     created_at  TIMESTAMP NOT NULL,
     updated_at  TIMESTAMP,
     deleted_at  TIMESTAMP,
-    FOREIGN KEY (address) REFERENCES addresses (id) ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY (address) REFERENCES addresses (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
 CREATE TABLE accounts
@@ -57,7 +73,6 @@ CREATE TABLE accounts
     deleted_at TIMESTAMP
 );
 
-
 CREATE TABLE transactions
 (
     id               UUID PRIMARY KEY,
@@ -70,8 +85,7 @@ CREATE TABLE transactions
     type             transaction_type   NOT NULL,
     created_at       TIMESTAMP          NOT NULL,
     updated_at       TIMESTAMP,
-    FOREIGN KEY (origin_account) REFERENCES accounts (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
-    FOREIGN KEY (beneficiary_iban) REFERENCES accounts (iban) ON UPDATE NO ACTION ON DELETE NO ACTION
+    FOREIGN KEY (origin_account) REFERENCES accounts (id) ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
 CREATE TABLE customer_accounts
@@ -87,3 +101,7 @@ CREATE TABLE customer_accounts
     FOREIGN KEY (customer_id) REFERENCES customers (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
     FOREIGN KEY (account_id) REFERENCES accounts (id) ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
+CREATE INDEX idx_transactions_origin_account ON transactions(origin_account);
+CREATE INDEX idx_customer_accounts_customer_id ON customer_accounts(customer_id);
+CREATE INDEX idx_customer_accounts_account_id ON customer_accounts(account_id);

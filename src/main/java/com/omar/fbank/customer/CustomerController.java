@@ -39,10 +39,10 @@ public class CustomerController {
         return transactionService.getTransactionsDtoByCustomerId(customerId, pageable);
     }
 
-    @PostMapping("")
+    @PostMapping("/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerResponseDto createCustomer(@Valid @RequestBody CustomerRequestDto customerRequestDto) {
-        return service.createCustomer(customerRequestDto);
+    public CustomerResponseDto createCustomer(@Valid @RequestBody CustomerRequestDto customerRequestDto, @PathVariable UUID userId) {
+        return service.createCustomer(customerRequestDto, userId);
     }
 
     @PostMapping("/{customerId}/accounts")
