@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -18,14 +19,18 @@ public class UserController {
     private final UserService service;
 
     @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<UserResponseDto> getUsers(Pageable pageable) {
         return service.getUsersDto(pageable);
     }
 
     @PostMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public AuthenticationResponse updateUser(@PathVariable("userId")UUID userId, @RequestBody UserRequestDto userRequestDto) {
+    @PreAuthorize("hasRole('ADMIN') or @authService.canModifyUser(#userId)")
+    public AuthenticationResponse updateUser(@PathVariable("userId") UUID userId,
+                                             @RequestBody UserRequestDto userRequestDto) {
         return service.updateUser(userId, userRequestDto);
     }
+
 
 }

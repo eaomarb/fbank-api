@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -22,16 +23,19 @@ public class AccountController {
     private final TransactionService transactionService;
 
     @GetMapping("/{accountId}")
+    @PreAuthorize("hasRole('ADMIN') or @authService.canAccessAccount(#accountId)")
     public Optional<AccountResponseDto> getAccountById(@PathVariable UUID accountId) {
         return service.getAccountDtoById(accountId);
     }
 
     @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<AccountResponseDto> getAccounts(Pageable pageable) {
         return service.getAccountsDto(pageable);
     }
 
     @GetMapping("/{accountId}/transactions")
+    @PreAuthorize("hasRole('ADMIN') or @authService.canAccessAccount(#accountId)")
     public Page<TransactionResponseDto> getTransactionsByAccountId(@PathVariable UUID accountId,
                                                                    @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return transactionService.getTransactionsDtoByAccountId(accountId, pageable);
@@ -39,7 +43,9 @@ public class AccountController {
 
     @DeleteMapping("/{accountId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN') or @authService.canAccessAccount(#accountId)")
     public void deleteAccount(@PathVariable UUID accountId) {
         service.deleteAccount(accountId);
     }
+
 }

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -25,48 +26,60 @@ public class CustomerController {
     private final TransactionService transactionService;
 
     @GetMapping("/{customerId}")
+    @PreAuthorize("@authService.canAccessCustomer(#customerId)")
     public Optional<CustomerResponseDto> getCustomerById(@PathVariable UUID customerId) {
         return service.getCustomerDtoById(customerId);
     }
 
     @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public Page<CustomerResponseDto> getCustomers(Pageable pageable) {
         return service.getCustomersDto(pageable);
     }
 
     @GetMapping("{customerId}/transactions")
-    public Page<TransactionResponseDto> getTransactionsByCustomerId(@PathVariable UUID customerId, Pageable pageable) {
+    @PreAuthorize("@authService.canAccessCustomer(#customerId)")
+    public Page<TransactionResponseDto> getTransactionsByCustomerId(@PathVariable UUID customerId,
+                                                                    Pageable pageable) {
         return transactionService.getTransactionsDtoByCustomerId(customerId, pageable);
     }
 
     @PostMapping("/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerResponseDto createCustomer(@Valid @RequestBody CustomerRequestDto customerRequestDto, @PathVariable UUID userId) {
+    @PreAuthorize("@authService.canCreateCustomer(#userId)")
+    public CustomerResponseDto createCustomer(@PathVariable UUID userId,
+                                              @Valid @RequestBody CustomerRequestDto customerRequestDto) {
         return service.createCustomer(customerRequestDto, userId);
     }
 
     @PostMapping("/{customerId}/accounts")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@authService.canAccessCustomer(#customerId)")
     public AccountResponseDto createAccount(@Valid @PathVariable UUID customerId, Pageable pageable) {
         return accountService.createAccount(customerId, pageable);
     }
 
     @PutMapping("/{customerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateCustomer(@PathVariable UUID customerId, @Valid @RequestBody CustomerRequestDto customerRequestDto) {
+    @PreAuthorize("@authService.canAccessCustomer(#customerId)")
+    public void updateCustomer(@PathVariable UUID customerId,
+                               @Valid @RequestBody CustomerRequestDto customerRequestDto) {
         service.updateCustomer(customerId, customerRequestDto);
     }
 
     @DeleteMapping("/{customerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authService.canAccessCustomer(#customerId)")
     public void deleteCustomer(@PathVariable UUID customerId) {
         service.deleteCustomer(customerId);
     }
 
     @PostMapping("/{customerId}/reactivate")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@authService.canAccessCustomer(#customerId)")
     public void reactivateCustomer(@PathVariable UUID customerId) {
         service.reactivateCustomer(customerId);
     }
+
 
 }

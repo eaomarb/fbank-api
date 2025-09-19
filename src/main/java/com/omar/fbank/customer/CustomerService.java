@@ -45,7 +45,7 @@ public class CustomerService {
     }
 
     public CustomerResponseDto createCustomer(@Valid CustomerRequestDto customerRequestDto, UUID userId) {
-        if (!NifValidator.isValidNIF(customerRequestDto.documentId())) {
+        if (NifValidator.isValidNIF(customerRequestDto.documentId())) {
             throw new InvalidNifException();
         }
 
@@ -56,7 +56,7 @@ public class CustomerService {
         Customer customer = repository.findById(customerId)
                 .orElseThrow(CustomerNotFoundException::new);
 
-        if (!NifValidator.isValidNIF(customerRequestDto.documentId())) {
+        if (NifValidator.isValidNIF(customerRequestDto.documentId())) {
             throw new InvalidNifException();
         }
         customer.setDocumentId(customerRequestDto.documentId());

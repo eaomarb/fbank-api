@@ -32,4 +32,20 @@ public interface CustomerAccountRepository extends JpaRepository<CustomerAccount
     List<CustomerAccount> findByCustomer(Customer customer);
 
     void deleteByAccount(Account account);
+
+    boolean existsByAccountIdAndCustomerUser_Id(UUID accountId, UUID customerId);
+
+    boolean existsByIdAndCustomerUserId(UUID id, UUID customerUserId);
+
+    @Query("SELECT ca.account.id FROM CustomerAccount ca WHERE ca.customer.user.id = :userId")
+    List<UUID> findAccountIdsByUserId(@Param("userId") UUID userId);
+
+    @Query("""
+            SELECT CASE WHEN COUNT(ca) > 0 THEN true ELSE false END
+            FROM CustomerAccount ca
+            WHERE ca.id = :id
+            AND ca.isOwner = true
+            AND ca.customer.user.id = :customerUserId
+            """)
+    boolean existsByIdAndOwnerIsTrueAndCustomer_User_Id(UUID id, UUID customerUserId);
 }

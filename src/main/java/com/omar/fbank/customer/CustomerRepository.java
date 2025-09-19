@@ -17,4 +17,8 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     @Modifying
     @Query(value = "UPDATE customers SET deleted = false WHERE id = :customer_id", nativeQuery = true)
     void reactivateCustomerById(UUID customer_id);
+
+    boolean existsByIdAndUserId(UUID id, UUID userId);
+
+    boolean existsByAddress_IdAndUser_Id(UUID addressId, UUID userId);
 }

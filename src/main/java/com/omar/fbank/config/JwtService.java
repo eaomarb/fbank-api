@@ -1,5 +1,7 @@
 package com.omar.fbank.config;
 
+import com.omar.fbank.user.User;
+import com.omar.fbank.user.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -16,8 +18,13 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
+    private final UserRepository userRepository;
     @Value("${jwt.secret}")
     private String secretKey;
+
+    public JwtService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -36,6 +43,11 @@ public class JwtService {
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
+        User user = userRepository.getByEmail(userDetails.getUsername());
+
+        extraClaims.put("user", user.getId());
+        extraClaims.put("role", user.getRole());
+
         return Jwts
                 .builder()
                 .claims(extraClaims)
