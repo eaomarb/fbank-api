@@ -33,8 +33,6 @@ public interface CustomerAccountRepository extends JpaRepository<CustomerAccount
 
     void deleteByAccount(Account account);
 
-    boolean existsByAccountIdAndCustomerUser_Id(UUID accountId, UUID customerId);
-
     boolean existsByIdAndCustomerUserId(UUID id, UUID customerUserId);
 
     @Query("SELECT ca.account.id FROM CustomerAccount ca WHERE ca.customer.user.id = :userId")
@@ -48,4 +46,23 @@ public interface CustomerAccountRepository extends JpaRepository<CustomerAccount
             AND ca.customer.user.id = :customerUserId
             """)
     boolean existsByIdAndOwnerIsTrueAndCustomer_User_Id(UUID id, UUID customerUserId);
+
+    @Query("""
+                SELECT CASE WHEN COUNT(ca) > 0 THEN true ELSE false END
+                FROM CustomerAccount ca
+                WHERE ca.account.id = :accountId
+                  AND ca.customer.user.id = :userId
+                  AND ca.isOwner = true
+            """)
+    boolean existsByAccountIdAndCustomerUserIdAndOwnerIsTrue(@Param("accountId") UUID accountId,
+                                                             @Param("userId") UUID userId);
+
+    @Query("""
+                SELECT CASE WHEN COUNT(ca) > 0 THEN true ELSE false END
+                FROM CustomerAccount ca
+                WHERE ca.account.id = :accountId
+                  AND ca.customer.user.id = :userId
+            """)
+    boolean existsByAccountIdAndCustomerUserId(@Param("accountId") UUID accountId,
+                                               @Param("userId") UUID userId);
 }

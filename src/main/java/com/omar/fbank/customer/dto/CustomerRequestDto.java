@@ -1,7 +1,6 @@
 package com.omar.fbank.customer.dto;
 
 import com.omar.fbank.address.dto.AddressRequestDto;
-import com.omar.fbank.user.dto.UserRequestDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
@@ -27,9 +26,6 @@ public record CustomerRequestDto(
         @Positive(message = "Phone number must be a positive number.")
         @Min(value = 600000000, message = "Phone number is invalid.")
         @Max(value = 999999999, message = "Phone number is invalid.")
-        String phone,
-
-        @Valid
-        UserRequestDto user
+        String phone
 ) {
 }

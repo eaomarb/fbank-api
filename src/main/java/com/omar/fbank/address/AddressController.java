@@ -20,20 +20,20 @@ public class AddressController {
     private final AddressService service;
 
     @GetMapping("/{addressId}")
-    @PreAuthorize("hasRole('ADMIN') or @authService.canAccessAddress(#addressId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessAddress(#addressId)")
     public Optional<AddressResponseDto> getAddressById(@PathVariable UUID addressId) {
         return service.getAddressDtoById(addressId);
     }
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Page<AddressResponseDto> getAddresses(Pageable pageable) {
         return service.getAddressesDto(pageable);
     }
 
     @PutMapping("/{addressId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasRole('ADMIN') or @authService.canAccessAddress(#addressId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessAddress(#addressId)")
     public void updateAddress(@PathVariable UUID addressId,
                               @Valid @RequestBody AddressRequestDto addressRequestDto) {
         service.updateAddress(addressId, addressRequestDto);

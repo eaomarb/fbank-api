@@ -22,31 +22,31 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Page<TransactionResponseDto> getTransactions(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return transactionService.getTransactionsDto(pageable);
     }
 
     @GetMapping("/{transactionId}")
-    @PreAuthorize("@authService.canAccessTransaction(#transactionId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessTransaction(#transactionId)")
     public TransactionResponseDto getTransactionById(@PathVariable UUID transactionId) {
         return transactionService.getTransactionDtoById(transactionId);
     }
 
     @PostMapping("/deposit")
-    @PreAuthorize("@authService.canOperateOnAccount(#depositRequestDto.accountId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessAccount(#depositRequestDto.accountId)")
     public TransactionResponseDto deposit(@Valid @RequestBody DepositRequestDto depositRequestDto) {
         return transactionService.deposit(depositRequestDto);
     }
 
     @PostMapping("/withdraw")
-    @PreAuthorize("@authService.canOperateOnAccount(#withdrawRequestDto.accountId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessAccount(#withdrawRequestDto.accountId)")
     public TransactionResponseDto withdraw(@Valid @RequestBody WithdrawRequestDto withdrawRequestDto) {
         return transactionService.withdraw(withdrawRequestDto);
     }
 
     @PostMapping("/transfer")
-    @PreAuthorize("@authService.canOperateOnAccount(#transferRequestDto.accountId())")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessAccount(#transferRequestDto.accountId())")
     public TransactionResponseDto transfer(@Valid @RequestBody TransferRequestDto transferRequestDto) {
         return transactionService.transfer(transferRequestDto);
     }

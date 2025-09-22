@@ -3,6 +3,8 @@ package com.omar.fbank.transaction;
 import com.omar.fbank.account.Account;
 import com.omar.fbank.account.AccountRepository;
 import com.omar.fbank.account.AccountStatus;
+import com.omar.fbank.customer.CustomerRepository;
+import com.omar.fbank.customer.exception.CustomerNotFoundException;
 import com.omar.fbank.customeraccount.CustomerAccount;
 import com.omar.fbank.customeraccount.CustomerAccountRepository;
 import com.omar.fbank.transaction.dto.*;
@@ -27,6 +29,7 @@ public class TransactionService {
     private final TransactionDtoMapper mapper;
     private final AccountRepository accountRepository;
     private final CustomerAccountRepository customerAccountRepository;
+    private final CustomerRepository customerRepository;
 
     public Page<TransactionResponseDto> getTransactionsDto(Pageable pageable) {
         return repository
@@ -46,6 +49,10 @@ public class TransactionService {
     }
 
     public Page<TransactionResponseDto> getTransactionsDtoByCustomerId(UUID customerId, Pageable pageable) {
+        if (customerRepository.findById(customerId).isEmpty()) {
+            throw new CustomerNotFoundException();
+        }
+
         Page<CustomerAccount> customerAccounts = customerAccountRepository.findByCustomer_Id(customerId, pageable);
 
         List<UUID> accounts = customerAccounts

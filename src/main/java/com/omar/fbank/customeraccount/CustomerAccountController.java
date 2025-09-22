@@ -19,53 +19,54 @@ public class CustomerAccountController {
     private final CustomerAccountService service;
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Page<CustomerAccountResponseDto> getCustomerAccounts(Pageable pageable) {
         return service.getCustomerAccounts(pageable);
     }
 
     @GetMapping("/{customerAccountId}")
-    @PreAuthorize("@authService.canAccessCustomerAccount(#customerAccountId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessCustomerAccount(#customerAccountId)")
     public Optional<CustomerAccountResponseDto> getCustomerAccountById(@PathVariable UUID customerAccountId) {
         return service.getCustomerAccountDtoById(customerAccountId);
     }
 
     @GetMapping("/customer/{customerId}")
-    @PreAuthorize("@authService.canCreateCustomerAccount(#customerId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessCustomer(#customerId)")
     public Page<CustomerAccountResponseDto> getCustomerAccountsByCustomerId(@PathVariable UUID customerId, Pageable pageable) {
         return service.getCustomerAccountsByCustomerId(customerId, pageable);
     }
 
     @GetMapping("/account/{accountId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Page<CustomerAccountResponseDto> getCustomerAccountByAccountId(@PathVariable UUID accountId, Pageable pageable) {
         return service.getCustomerAccountsDtoByAccountId(accountId, pageable);
     }
 
     @GetMapping("/{customerId}/{accountId}")
-    @PreAuthorize("@authService.canCreateCustomerAccount(#customerId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessAccount(#accountId)")
     public Optional<CustomerAccountResponseDto> getCustomerAccountByCustomerAndAccountId(@PathVariable UUID customerId, @PathVariable UUID accountId) {
         return service.getCustomerAccountByCustomerAndAccountIds(customerId, accountId);
     }
 
     @PostMapping("/{accountId}/{customerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("@authService.canCreateCustomerAccount(#customerId)")
-    public void createCustomerAccount(@Valid @PathVariable UUID accountId,
-                                      @Valid @PathVariable UUID customerId, Pageable pageable) {
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canOperateOnAccount(#accountId)")
+    public void addCustomerToAccount(@Valid @PathVariable UUID accountId,
+                                     @Valid @PathVariable UUID customerId, Pageable pageable) {
         service.addCustomerToAccount(accountId, customerId, pageable);
     }
 
     @PatchMapping("/{customerAccountId}/ownership")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("@authService.canModifyCustomerAccount(#customerAccountId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canModifyCustomerAccount(#customerAccountId)")
     public void updateCustomerAccountOwnership(@Valid @PathVariable UUID customerAccountId,
                                                @Valid @RequestParam boolean isOwner) {
         service.updateCustomerAccountOwnership(customerAccountId, isOwner);
     }
 
     @DeleteMapping("/{customerAccountId}")
-    @PreAuthorize("@authService.canModifyCustomerAccount(#customerAccountId)")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canModifyCustomerAccount(#customerAccountId)")
     public void deleteCustomerAccountById(@PathVariable UUID customerAccountId) {
         service.deleteCustomerAccountById(customerAccountId);
     }

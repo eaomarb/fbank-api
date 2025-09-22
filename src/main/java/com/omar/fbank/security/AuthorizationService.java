@@ -33,7 +33,7 @@ public class AuthorizationService {
 
     public boolean canAccessAccount(UUID accountId) {
         UUID userId = securityUtils.getCurrentUserId();
-        return customerAccountRepository.existsByAccountIdAndCustomerUser_Id(accountId, userId);
+        return customerAccountRepository.existsByAccountIdAndCustomerUserId(accountId, userId);
     }
 
     public boolean canAccessAddress(UUID addressId) {
@@ -51,10 +51,6 @@ public class AuthorizationService {
         return customerAccountRepository.existsByIdAndOwnerIsTrueAndCustomer_User_Id(customerAccountId, userId);
     }
 
-    public boolean canCreateCustomerAccount(UUID customerId) {
-        UUID userId = securityUtils.getCurrentUserId();
-        return customerRepository.existsByIdAndUserId(customerId, userId);
-    }
 
     public boolean canAccessTransaction(UUID transactionId) {
         UUID userId = securityUtils.getCurrentUserId();
@@ -66,7 +62,7 @@ public class AuthorizationService {
 
     public boolean canOperateOnAccount(UUID accountId) {
         UUID userId = securityUtils.getCurrentUserId();
-        return customerAccountRepository.existsByAccountIdAndCustomerUser_Id(accountId, userId);
+        return customerAccountRepository.existsByAccountIdAndCustomerUserIdAndOwnerIsTrue(accountId, userId);
     }
 
     public boolean canAccessUser(UUID userId) {

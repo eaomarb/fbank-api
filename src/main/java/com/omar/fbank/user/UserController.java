@@ -19,14 +19,14 @@ public class UserController {
     private final UserService service;
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Page<UserResponseDto> getUsers(Pageable pageable) {
         return service.getUsersDto(pageable);
     }
 
     @PostMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasRole('ADMIN') or @authService.canModifyUser(#userId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canModifyUser(#userId)")
     public AuthenticationResponse updateUser(@PathVariable("userId") UUID userId,
                                              @RequestBody UserRequestDto userRequestDto) {
         return service.updateUser(userId, userRequestDto);
