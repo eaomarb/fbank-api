@@ -26,7 +26,7 @@ public class UserController {
 
     @PostMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('ADMIN') or @authService.canModifyUser(#userId)")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessUser(#userId)")
     public AuthenticationResponse updateUser(@PathVariable("userId") UUID userId,
                                              @RequestBody UserRequestDto userRequestDto) {
         return service.updateUser(userId, userRequestDto);

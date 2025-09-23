@@ -69,11 +69,4 @@ public class AuthorizationService {
         UUID currentUserId = securityUtils.getCurrentUserId();
         return currentUserId.equals(userId);
     }
-
-    public boolean canModifyUser(UUID userId) {
-        return canAccessUser(userId);
-    }
-
-
-
 }
