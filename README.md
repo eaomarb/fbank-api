@@ -114,7 +114,7 @@ Docker Compose example:
           DB_PASSWORD: testpass
           JWT_SECRET: changeme
       db:
-        image: postgres:15
+        image: postgres:16-alpine
         environment:
           POSTGRES_DB: fbank
           POSTGRES_USER: testuser
