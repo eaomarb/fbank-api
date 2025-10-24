@@ -1,0 +1,25 @@
+services:
+  fbank-db:
+    container_name: fbank-db
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: fbank
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  fbank-api:
+    container_name: fbank-api
+    build: .
+    environment:
+      DB_HOST: fbank-db
+      DB_PORT: 5432
+      DB_NAME: fbank
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: IQws5Ej0WMz3nI0b+LWGmYEuXyruCw7WwNEzwTuNYyQ= # Just a preset secret so the project runs out of the box
+    depends_on:
+      - fbank-db
+    ports:
+      - "8080:8080"
