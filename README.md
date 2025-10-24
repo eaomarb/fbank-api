@@ -17,117 +17,98 @@ ERD Diagram
 ------------
 ![ERD Diagram](docs/schema.png)
 
+Environment variables
+---------------------
+| Variable    | Description                                      |
+|------------|--------------------------------------------------|
+| DB_HOST     | PostgreSQL host                                  |
+| DB_PORT     | PostgreSQL port (default 5432)                  |
+| DB_NAME     | Database name                                   |
+| DB_USERNAME | Database user                                   |
+| DB_PASSWORD | Database password                               |
+| JWT_SECRET  | JWT secret (must be at least 256-bit / 32 bytes) |
+
+
+Generate a 256-bit secret with:
+
+```bash
+openssl rand -base64 32
+```
+
 Quick Start
 -----------
+**Local without Docker**
 
-Clone the repo:
+1. **Install PostgreSQL** if not installed.  
+2. **Create the database**:
 
-    git clone https://github.com/eaomarb/fbank-api.git
-    cd fbank-api
-    
+```bash
+createdb -U postgres fbank
+```
 
-Set up PostgreSQL (Docker or local). Example credentials:
+3. **Initialize the schema**:
 
-*   DB: fbank
-*   User: testuser
-*   Password: testpass
+```bash
+psql -U postgres -d fbank_local -f src/main/resources/schema.sql
+```
 
-Update `application.properties` with your database info and a JWT secret key.
+4. **Run the app**:
+```bash
+DB_HOST=localhost DB_PORT=5432 DB_NAME=fbank DB_USERNAME=postgres DB_PASSWORD=postgres JWT_SECRET=<32byte_secret> ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
 
-Build and run the app:
+5. Open Swagger UI: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
-    ./mvnw clean install -Dspring.profiles.active=test
-    ./mvnw spring-boot:run
-    
 
-Open Swagger UI:  
-[http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+**Docker / Docker Compose**
 
-Project Structure
------------------
+1. **Build the app**:
 
-* account/ – Bank account logic
-* customer/ – Customer data and validation
-* customeraccount/ – Links customers with accounts
-* user/ – Users, roles, and permissions
-* address/ – Customer addresses
-* auth/ – Login and JWT handling
-* config/ – App and security configuration
+```bash
+./mvnw clean package -DskipTests
+```
 
-Testing
--------
+2. **Start everything using the included `docker-compose.yaml`**:
 
-Tests are written with JUnit 5 and Testcontainers, so you don’t need to configure a separate DB manually.
+```bash
+docker compose up --build
+```
 
-**Note:** To run all tests without errors, use the `test` profile:
+3. Access the app at [http://localhost:8080](http://localhost:8080)
 
-    ./mvnw clean install -Dspring.profiles.active=test
-    
+> The DB is automatically initialized from `schema.sql`.
 
-Running tests directly from the IDE works fine, but when using Maven (`mvn clean install`) you need the `test` profile.
+---
 
-Docker Setup 🐳
----------------
+## Project Structure
 
-**Port:** 8080
+* `account/` – Bank account logic  
+* `customer/` – Customer data and validation  
+* `customeraccount/` – Links customers with accounts  
+* `user/` – Users, roles, and permissions  
+* `address/` – Customer addresses  
+* `auth/` – Login and JWT handling  
+* `config/` – App and security configuration
 
-**Required environment variables:**
+---
 
-*   DB\_HOST – PostgreSQL host
-*   DB\_PORT – PostgreSQL port (default 5432)
-*   DB\_NAME – database name
-*   DB\_USERNAME – database user
-*   DB\_PASSWORD – database password
-*   JWT\_SECRET – JWT secret key
+## Testing
 
-Example Dockerfile:
+Tests use **JUnit 5 + Testcontainers**, so no local DB is required.
 
-    FROM eclipse-temurin:21
-    ARG JAR_FILE=target/*.jar
-    COPY ./target/fbank-1.0.0.jar app.jar
-    ENTRYPOINT ["java","-jar","/app.jar"]
-    
+Run all tests:
 
-Running the app
----------------
+```bash
+./mvnw clean install -Dspring.profiles.active=test
+```
+---
 
-1. Build the project: `./mvnw clean install -Dspring.profiles.active=test`
-2. Run locally: `./mvnw spring-boot:run`
-3. Or with Docker: `docker build -t fbank-api . && docker run -d -p 8080:8080 --name fbank-api fbank-api`
+## Notes
 
-Set your DB and JWT environment variables before running Docker.
-    
+* Backend-only, frontend planned.  
 
-Docker Compose example:
+---
 
-    services:
-      fbank:
-        image: fbank-api
-        build: .
-        ports:
-          - "8080:8080"
-        environment:
-          DB_HOST: db
-          DB_PORT: 5432
-          DB_NAME: fbank
-          DB_USERNAME: testuser
-          DB_PASSWORD: testpass
-          JWT_SECRET: changeme
-      db:
-        image: postgres:16-alpine
-        environment:
-          POSTGRES_DB: fbank
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpass
-        ports:
-          - "5432:5432"
+## Contact ✉️
 
-Notes
--------------------
-
-*   Currently only backend; frontend is planned but not done yet
-
-Contact ✉️
-----------
-
-If you want to suggest improvements or ask something, please open an issue here in GitHub.
+Open an issue in GitHub for suggestions or questions.
