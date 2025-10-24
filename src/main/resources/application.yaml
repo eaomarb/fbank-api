@@ -10,17 +10,13 @@ spring:
         max-page-size: 25
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-#    defer-datasource-initialization: true
-#  sql:
-#    init:
-#      mode: always
 jwt:
   secret: ${JWT_SECRET}
 
