@@ -17,7 +17,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/customersAccounts")
 @RequiredArgsConstructor
-@Tag(name = "CustomerAccount", description = "Manage which customers are associated with which accounts and their ownership")
+@Tag(name = "CustomerAccounts", description = "Manage which customers are associated with which accounts and their ownership")
 public class CustomerAccountController {
     private final CustomerAccountService service;
 
