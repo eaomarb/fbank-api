@@ -36,6 +36,13 @@ public class CustomerController {
         return service.getCustomerDtoById(customerId);
     }
 
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAuthority('ADMIN') or @authService.canAccessUser(#userId)")
+    @Operation(summary = "Get customer by User ID", description = "Returns customer details if the user has access or is an admin")
+    public Optional<CustomerResponseDto> getCustomerByUserId(@Parameter(description = "UUID of the user") @PathVariable UUID userId) {
+        return service.getCustomerDtoByUserId(userId);
+    }
+
     @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Get all customers (admin only)", description = "Returns a list of customers")

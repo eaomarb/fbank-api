@@ -35,6 +35,11 @@ public class CustomerService {
         return Optional.ofNullable(customerDtoMapper.toResponseDto(repository.findById(customerId).orElseThrow()));
     }
 
+    public Optional<CustomerResponseDto> getCustomerDtoByUserId(UUID userId) {
+        return Optional.ofNullable
+                (customerDtoMapper.toResponseDto(repository.findByUser_Id(userId).orElseThrow(CustomerNotFoundException::new)));
+    }
+
     public Optional<Customer> getCustomerById(UUID customerId) {
         return repository.findById(customerId);
     }
