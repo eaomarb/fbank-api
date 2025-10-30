@@ -12,6 +12,7 @@ services:
   fbank-api:
     container_name: fbank-api
     build: .
+    image: fbank-api:latest
     environment:
       DB_HOST: fbank-db
       DB_PORT: 5432
